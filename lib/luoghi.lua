@@ -894,6 +894,7 @@ L.lista = {
 -- i luoghi nuovi della v3
 for _, p in ipairs(include("lib/luoghi_nuovi")(T, l)) do table.insert(L.lista, p) end
 for _, p in ipairs(include("lib/luoghi_nuovi2")(T, l)) do table.insert(L.lista, p) end
+for _, p in ipairs(include("lib/luoghi_nuovi3")(T, l)) do table.insert(L.lista, p) end
 
 -------------------------------------------------------------------------------
 -- ALTROVE: ogni volta un luogo nuovo, con un nome e una musica nuovi

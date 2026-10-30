@@ -20,7 +20,7 @@ Tra un luogo e l'altro c'è un piccolo film: un cartello col numero del capitolo
 
 ![Un viaggio sotto la pioggia](img/viaggio.png) ![La mano del nonno](img/mano_nonno.png)
 
-**Sette strati, centocinquantaquattro luoghi**, dal mare di stelle al fondo dell'abisso: il cielo, le alture, l'infanzia, il paese, le case, la mente, l'abisso. E poi i luoghi che non sono sulla mappa.
+**Sette strati, duecentocinque luoghi**, dal mare di stelle al fondo dell'abisso: il cielo, le alture, l'infanzia, il paese, le case, la mente, l'abisso. E poi i luoghi che non sono sulla mappa.
 
 **Come si cammina**
 
@@ -58,7 +58,7 @@ Between one place and the next there is a short film: a title card with the chap
 
 ![The smells of long ago](img/cucina.png) ![The drowned world](img/sommerso.png)
 
-**Seven layers, a hundred and fifty-four places**, from the sea of stars to the bottom of the abyss: the sky, the heights, childhood, the village, the houses, the mind, the abyss. And then the places that aren't on the map.
+**Seven layers, two hundred and five places**, from the sea of stars to the bottom of the abyss: the sky, the heights, childhood, the village, the houses, the mind, the abyss. And then the places that aren't on the map.
 
 **How to walk**
 
@@ -76,6 +76,8 @@ Between one place and the next there is a short film: a title card with the chap
 Nothing changes abruptly. The full manual is in [doc/manual_en.pdf](doc/manual_en.pdf).
 
 **Install** from maiden: `;install https://github.com/unluogomoderatamentesicuro/anamnesi`, then **SYSTEM > RESTART** (on first launch and after every audio engine update).
+
+![La faggeta](img/faggeta.png) ![La cometa](img/cometa.png)
 
 ![Domenica al paese](img/domenica.png)
 

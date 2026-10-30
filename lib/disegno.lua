@@ -22,8 +22,14 @@ function D.lv(l)
   if v > 0 then l = l * (1 - 0.25 * v) end
   l = l * D.gain
   if l <= 0 then return 0 end
-  -- una curva leggera: i neri restano neri, la luce resta luce
+  -- la curva: i neri restano neri, le luci vere restano luci,
+  -- ma i grandi grigi chiari (cieli, muri, nebbie) si abbassano,
+  -- così non fanno quella patina lattiginosa che copre le figure
   l = 15 * (l / 15) ^ 1.15
+  if l > 5 then
+    if l <= 13 then l = 5 + (l - 5) * 0.68
+    else l = 10.44 + (l - 13) * 2.28 end
+  end
   l = floor(l + 0.5)
   if l > 15 then l = 15 end
   return l
