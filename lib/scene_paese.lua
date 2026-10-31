@@ -7,62 +7,98 @@ local R, pick, pan, copy, think, mac, w = H.R, H.pick, H.pan, H.copy, H.think, H
 D.POSE.phone = { lean = 4, nod = 14, ua1 = 125, ua2 = 10, fa1 = 172, fa2 = 20, th1 = 3, th2 = -3, sh1 = 0, sh2 = -1, hy = 7.2, rot = 0 }
 
 -------------------------------------------------------------------------------
--- LA SOGLIA
+-- LA SOGLIA (v7)
+-- Il buio. Dietro di lui la porta da cui è entrato, sola, con le stelle dentro.
+-- Davanti i sentieri: una scala di luce che sale, gradini che scendono nel nero,
+-- due strade di lumini a destra e a sinistra. Quando ne scegli uno, si accende,
+-- e i lumini corrono verso dove andrai.
 -------------------------------------------------------------------------------
 S.soglia = {
   init = function(s)
-    s.stars = D.stars_gen(60, 61, 8, 34)
-    s.hills = D.ridge_gen(62, 40, 8, 0.8)
-    s.hills2 = D.ridge_gen(63, 46, 6, 0.6)
-    s.fig = D.figura(64, 58, { s = 1.15, l = 0, dark = true, pose = "stand", speed = 3, on_step = H.steps("pietra", 0.3) })
+    s.fig = D.figura(64, 52, { s = 1.15, l = 14, pose = "stand", speed = 3, on_step = H.steps("pietra", 0.3) })
+    s.stars = D.stars_gen(26, 61, 10, 38)
+    s.motes = D.parts(14)
     s.embers = D.parts(8)
+    s.lit = { su = 0, giu = 0, sx = 0, dx = 0, segreto = 0 }
+    s.door = 0
   end,
   update = function(s, dt, t)
+    local sel = S.env.sel and S.env.sel()
+    for k, v in pairs(s.lit) do s.lit[k] = D.lerp(v, (sel == k) and 1 or 0, min(1, dt * 3)) end
+    -- lui si gira verso il sentiero scelto
+    if sel and s.fig.idle then
+      if sel == "sx" then s.fig.face = -1 elseif sel == "dx" then s.fig.face = 1 end
+      if sel == "su" then s.fig:act({ { "pose", "look_up", 2 } }) elseif sel == "giu" then s.fig:act({ { "pose", "head_down", 2 } }) end
+    end
     think(s.fig, function()
       local r = random()
-      if r < 0.4 then return { { "pose", "stand", R(10, 20) }, { "pose", "look_up", R(5, 9) } } end
-      if r < 0.65 then return { { "pose", "sit_ground", R(18, 30) }, { "pose", "stand", 3 } } end
-      if r < 0.85 then return { { "walk", R(58, 70) }, { "face", pick({ 1, -1 }) }, { "pose", "stand", R(6, 10) } } end
-      return { { "face", -1 }, { "pose", "head_down", 5 }, { "face", 1 }, { "pose", "stand", 4 } }
+      if r < 0.35 then return { { "pose", "stand", R(8, 14) }, { "pose", "look_up", R(4, 7) } } end
+      if r < 0.55 then return { { "face", -1 }, { "pose", "stand", 3 }, { "face", 1 }, { "pose", "stand", R(6, 10) } } end
+      if r < 0.75 then return { { "walk", R(54, 74) }, { "face", pick({ 1, -1 }) }, { "pose", "stand", R(6, 10) } } end
+      return { { "pose", "sit_ground", R(14, 24) }, { "pose", "stand", 3 } }
     end)
     s.fig:update(dt)
-    if random() < dt * (1 + mac("fuoco") * 2) then D.spawn(s.embers, { x = R(0, 14), y = R(50, 60), vx = R(2, 6), vy = -R(4, 10), life = R(1, 3) }) end
+    s.door = s.door + dt
+    if random() < dt * 1.5 then D.spawn(s.motes, { x = R(56, 72), y = R(18, 50), vx = R(-1, 1), vy = -R(1, 3), life = R(3, 6) }) end
+    D.parts_update(s.motes, dt)
+    if random() < dt * (1 + mac("fuoco") * 2) then D.spawn(s.embers, { x = R(10, 18), y = 56, vx = R(-2, 2), vy = -R(6, 12), life = R(1, 2.5) }) end
     D.parts_update(s.embers, dt)
   end,
   draw = function(s, t)
-    local lu = mac("luce")
-    D.gradient(0, 48, 0, 5 + lu * 2)
-    D.stars(s.stars, t, 1)
-    D.moon(78, 11, 3, 13, 1, 0.55)
-    D.ridge(s.hills, 2, 64)
-    D.ridge(s.hills2, 3, 64)
-    -- sentieri e piccole luci lontane che respirano piano
-    local paths = { { 74, 22 }, { 52, 36 }, { 84, 46 }, { 60, 50 } }
-    for i, p in ipairs(paths) do
-      for k = 0, 1, 0.06 do
-        local x = 64 + (p[1] - 64) * k + sin(k * 6 + i) * 3 * k
-        local y = 58 + (p[2] - 58) * k
-        D.px(x, y, 4)
-      end
-      D.px(p[1], p[2], 7 + 2 * sin(t * 0.3 + i * 1.7))
+    local L = s.lit
+    -- la porta dietro di lui: solo il telaio, e dentro le stelle da cui viene
+    local dx0, dx1, dy0 = 52, 76, 12
+    screen.level(D.lv(6)); screen.move(dx0 + 0.5, 52); screen.line(dx0 + 0.5, dy0 + 0.5); screen.line(dx1 + 0.5, dy0 + 0.5); screen.line(dx1 + 0.5, 52); screen.stroke()
+    for _, st in ipairs(s.stars) do
+      local x = dx0 + 2 + (st.x / 128) * (dx1 - dx0 - 4)
+      local y = dy0 + 2 + ((st.y - 10) / 28) * (52 - dy0 - 6)
+      local tw = 0.5 + 0.5 * sin(t * st.sp + st.ph)
+      D.px(x, y, 2 + st.b * 9 * tw)
     end
-    local fire = 1 + mac("fuoco")
-    local fl = D.noise(t * 4)
-    screen.level(D.lv(1))
-    screen.move(0, 0); screen.line(0, 64); screen.line(40, 64); screen.line(40, 20)
-    screen.arc(64, 20, 24, pi, 2 * pi)
-    screen.line(88, 64); screen.line(128, 64); screen.line(128, 0); screen.close(); screen.fill()
-    for x = 0, 36, 3 do
-      local k = 1 - x / 40
-      D.rect(x, 0, 3, 58, 1 + (1.8 + fl * 1.2) * k * k * fire)
+    -- la luce che filtra sotto e cade sul pavimento
+    for i = 0, 4 do D.line(dx0 + 3 + i * 5, 53, dx0 - 6 + i * 9, 60, 2 + (i % 2)) end
+    for _, m in ipairs(s.motes.list) do D.px(m.x, m.y, 6 * (1 - m.age / m.life)) end
+    -- il pavimento: una linea, e il fuoco alle spalle, piccolo
+    D.line(20, 52, 108, 52, 3)
+    -- il fuoco: poche lingue di luce, niente alone
+    local fh = 5 + mac("fuoco") * 4
+    for i = 0, 4 do
+      local x = 11 + i * 1.6
+      local h = fh * (0.4 + 0.6 * D.noise(t * 6 + i * 3)) * (1 - abs(i - 2) / 3.5)
+      D.line(x, 56, x + (D.noise(t * 4 + i) - 0.5) * 2, 56 - h, 9 + i % 2 * 5)
     end
-    D.rect(38, 20, 2, 38, 3 + fl * 1.5 * fire)
-    D.rect(88, 20, 2, 38, 2)
-    screen.level(D.lv(2 + fl)); screen.arc(64, 20, 25, pi, 2 * pi); screen.stroke()
-    D.rect(0, 58, 128, 6, 2)
-    for x = 0, 66, 6 do D.rect(x, 58, 6, 6, 2 + (2.5 + fl * 1.5) * fire * (1 - x / 66) ^ 1.5) end
-    D.line(40, 58, 88, 58, 4)
+    D.line(8, 57, 22, 57, 5)
     for _, e in ipairs(s.embers.list) do D.px(e.x, e.y, 10 * (1 - e.age / e.life)) end
+
+    -- i sentieri. Ogni lumino respira; quello scelto si accende e corre.
+    local function lumini(pts, k, base)
+      local n = #pts
+      for i, p in ipairs(pts) do
+        local run = k > 0.05 and ((t * 6 - i) % n < 1.5) and 6 or 0
+        local l = base + 1.5 * sin(t * 0.8 + i) + k * (6 + run)
+        D.px(p[1], p[2], l)
+      end
+    end
+    -- su: la scala di luce, a destra della porta
+    local up = {}
+    for i = 0, 9 do up[#up + 1] = { 86 + i * 3.5, 50 - i * 5 } end
+    for i, p in ipairs(up) do D.line(p[1] - 2, p[2], p[1] + 2, p[2], 2 + L.su * 9 * (1 - i / 14)) end
+    lumini(up, L.su, 3)
+    -- giù: i gradini che scendono nel nero, a sinistra in basso
+    local dn = {}
+    for i = 0, 6 do dn[#dn + 1] = { 40 - i * 4, 56 + i * 1.2 } end
+    for i, p in ipairs(dn) do D.line(p[1] - 3, p[2], p[1] + 1, p[2], 2 + L.giu * 7 * (1 - i / 9)) end
+    lumini(dn, L.giu, 2)
+    -- sinistra e destra: due strade di lumini che vanno fuori dallo schermo
+    local sx, dxp = {}, {}
+    for i = 1, 7 do sx[#sx + 1] = { 50 - i * 7, 52 - i * 0.6 + sin(i) * 0.8 }; dxp[#dxp + 1] = { 78 + i * 7, 52 - i * 0.6 + sin(i + 2) * 0.8 } end
+    lumini(sx, L.sx, 3); lumini(dxp, L.dx, 3)
+    -- il sentiero nascosto: un luccichio vicino a lui, solo quando c'è
+    if L.segreto > 0.05 then
+      for i = 1, 8 do local a = t * 2 + i * 0.8; D.px(s.fig.x + cos(a) * 9, s.fig.y - 10 + sin(a) * 4, L.segreto * 12) end
+    end
+    -- le stelle vere, poche, in alto
+    for i = 1, 7 do D.px((i * 37 + 11) % 128, 4 + (i * 13) % 10, 3 + 2 * sin(t * 0.4 + i)) end
     s.fig:draw()
   end,
 }

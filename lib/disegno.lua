@@ -17,10 +17,11 @@ D.veil = 0      -- velo del ricordo (allora)
 -------------------------------------------------------------------------------
 -- base
 -------------------------------------------------------------------------------
--- LA LUCE (v6): lo schermo del norns è nero, e un OLED fa sembrare chiaro
--- anche un grigio medio. Allora: le grandi superfici (muri, cieli, pavimenti,
--- colline) scendono quasi al nero; gli oggetti piccoli restano leggibili;
--- le figure e le luci vere restano luminose. Così si vede chi si muove.
+-- LA LUCE (v7): lo schermo del norns è nero, e un OLED fa sembrare chiaro
+-- anche un grigio scurissimo. Allora: le grandi superfici (muri, cieli,
+-- pavimenti, colline) diventano nere, e di loro resta solo il bordo, sottile;
+-- gli oggetti piccoli restano leggibili; le figure e le luci vere restano
+-- luminose. Così si vede chi si muove, e niente fa da patina.
 function D.lv(l, big)
   local v = D.veil
   if v > 0 then l = l * (1 - 0.25 * v) end
@@ -38,8 +39,7 @@ function D.lv(l, big)
     if big == true then k = 1 elseif big then k = (big - 30) / 300 end
     if k > 0 then
       if k > 1 then k = 1 end
-      local b = 15 * ((l * 0.42) / 15) ^ 2.0
-      f = f + (b - f) * k
+      f = f * (1 - k)
     end
   end
   f = floor(f + 0.5)
@@ -47,6 +47,15 @@ function D.lv(l, big)
   return f
 end
 local lv = D.lv
+
+-- il bordo che resta di una superficie spenta (nil se non serve)
+local function edge(l, area)
+  if D.bright or area < 150 or l < 2.5 then return nil end
+  local f = 15 * (l * D.gain / 15) ^ 1.55 * 0.5
+  if f < 0.6 then return nil end
+  return max(1, min(4, floor(f + 0.5)))
+end
+D.edge = edge
 
 function D.level(l) screen.level(lv(l)) end
 
@@ -78,6 +87,10 @@ local noise = D.noise
 function D.rect(x, y, w, h, l)
   if w <= 0 or h <= 0 then return end
   screen.level(lv(l, w * h)); screen.rect(floor(x), floor(y), floor(w), floor(h)); screen.fill()
+  if w >= 6 and h >= 4 and not (w >= 110 and h >= 30) then
+    local e = edge(l, w * h)
+    if e then screen.level(e); screen.rect(floor(x) + 0.5, floor(y) + 0.5, floor(w) - 1, floor(h) - 1); screen.stroke() end
+  end
 end
 
 -- un lampo o un bianco pieno: qui la luce deve arrivare tutta
@@ -122,11 +135,20 @@ function D.poly(pts, l)
     if x < x0 then x0 = x end; if x > x1 then x1 = x end
     if y < y0 then y0 = y end; if y > y1 then y1 = y end
   end
-  screen.level(lv(l, (x1 - x0) * (y1 - y0) * 0.55))
+  local area = (x1 - x0) * (y1 - y0) * 0.55
+  screen.level(lv(l, area))
   screen.move(pts[1], pts[2])
   for i = 3, #pts, 2 do screen.line(pts[i], pts[i + 1]) end
   screen.close()
   screen.fill()
+  if not ((x1 - x0) >= 110 and (y1 - y0) >= 30) then
+    local e = edge(l, area)
+    if e then
+      screen.level(e); screen.move(pts[1], pts[2])
+      for i = 3, #pts, 2 do screen.line(pts[i], pts[i + 1]) end
+      screen.close(); screen.stroke()
+    end
+  end
 end
 
 -- alone di luce: un solo anello piccolo e netto attorno alla fonte, niente retino
@@ -142,7 +164,11 @@ D.tr = function(s) return s end
 function D.circle(x, y, r, l, stroke)
   screen.level(lv(l, (not stroke) and r * r * 3.14))
   screen.circle(x, y, r)
-  if stroke then screen.stroke() else screen.fill() end
+  if stroke then screen.stroke() else
+    screen.fill()
+    local e = edge(l, r * r * 3.14)
+    if e then screen.level(e); screen.circle(x, y, r); screen.stroke() end
+  end
 end
 
 -- cielo a fasce, dall'alto verso il basso
@@ -202,6 +228,14 @@ function D.ridge(h, l, ybot, off)
   screen.line(128, ybot or 64)
   screen.close()
   screen.fill()
+  -- del colle resta il crinale
+  local e = edge(l, 9999)
+  if e then
+    screen.level(e)
+    screen.move(0, h[floor(off) % 129])
+    for x = 1, 128 do screen.line(x, h[floor(x + off) % 129]) end
+    screen.stroke()
+  end
 end
 
 function D.ridge_line(h, l, off)
@@ -262,13 +296,33 @@ end
 
 function D.cloud(x, y, w, l, seed)
   local r = D.lcg(seed or floor(w * 7))
-  screen.level(lv(l, w > 16))
+  local bumps = {}
   for i = 1, floor(w / 4) + 2 do
-    local cx = x + r() * w
-    local cy = y + (r() - 0.6) * w * 0.12
-    screen.circle(cx, cy, 1.5 + r() * w * 0.12)
-    screen.fill()
+    bumps[i] = { x + r() * w, y + (r() - 0.6) * w * 0.12, 1.5 + r() * w * 0.12 }
   end
+  if w <= 16 then
+    screen.level(lv(l))
+    for _, b in ipairs(bumps) do screen.circle(b[1], b[2], b[3]); screen.fill() end
+    return
+  end
+  -- una nuvola grande: solo il suo bordo di sopra
+  local e = edge(l + 2, 9999)
+  if not e then return end
+  screen.level(e)
+  local first = true
+  for xx = x - 2, x + w + 2, 2 do
+    local top
+    for _, b in ipairs(bumps) do
+      local d = abs(xx - b[1])
+      if d < b[3] then local yy = b[2] - sqrt(b[3] * b[3] - d * d); if not top or yy < top then top = yy end end
+    end
+    if top then
+      if first then screen.move(xx, top); first = false else screen.line(xx, top) end
+    else
+      if not first then screen.stroke(); first = true end
+    end
+  end
+  if not first then screen.stroke() end
 end
 
 -------------------------------------------------------------------------------
@@ -353,6 +407,7 @@ end
 function D.parts(n) return { list = {}, max = n } end
 
 function D.spawn(ps, p)
+  p.age = p.age or 0
   if #ps.list < ps.max then ps.list[#ps.list + 1] = p end
 end
 

@@ -1,4 +1,4 @@
--- ANAMNESI v6
+-- ANAMNESI v7
 -- un viaggio nei ricordi
 -- veri e immaginati
 --
@@ -118,6 +118,10 @@ S.env.chord_midi = function(oct)
   local sc = C.scala()
   return C.prof.tonica + 12 * (oct or 0) + C.deg2semi(C.chord[random(#C.chord)], sc)
 end
+S.env.sel = function()
+  local e = st.sel and st.exits and st.exits[st.sel]
+  if e and st.t - st.sel_t < 8 then return e.dir end
+end
 S.env.mac = function(id)
   local v = C.mac[id]
   if v == nil then return 0 end
@@ -125,7 +129,11 @@ S.env.mac = function(id)
 end
 S.env.lang = function() return st.lang end
 C.hooks.note = function(ev)
-  if st.mode == "luogo" and st.scene and st.scene.note then st.scene.note(st.ss, ev) end
+  if st.mode == "luogo" and st.scene and st.scene.note then
+    -- i colpi del ritmo arrivano solo alle scene che li sanno guardare
+    if ev.ruolo == "ritmo" and not st.scene.ritmo then return end
+    st.scene.note(st.ss, ev)
+  end
 end
 
 -------------------------------------------------------------------------------
@@ -231,7 +239,7 @@ local function update(dt)
     if Pr.update(dt) then
       st.mode = "luogo"; st.arrived = st.t; st.fade = 0
       C.go(st.place, false)
-      C.saluto()
+      C.arrivo()
     end
     return
   end
@@ -240,6 +248,9 @@ local function update(dt)
   local want = 0
   local since = st.t - st.arrived
   if st.mode == "luogo" and (since < 7 or st.page) then want = 1 end
+  -- anche quando scegli un sentiero, giri una manopola o arriva un messaggio:
+  -- le scritte stanno sempre nelle bande nere, mai sopra il disegno
+  if st.mode == "luogo" and ((st.sel and st.t - st.sel_t < 8) or (st.macro and st.t - st.macro_t < 2.5) or (st.msg and st.t - st.msg_t < 3)) then want = 1 end
   if st.mode == "viaggio" then want = 1 end
   st.lb = st.lb + (want - st.lb) * min(1, dt * 2.2)
 
@@ -303,7 +314,7 @@ local function update(dt)
       local n = E.update(tv.run, dt)
       if n > 0 then C.step(tv.run.terreno, 0, 0.55) end
     elseif tv.t < tv.total then
-      if not tv.landed then tv.landed = true; C.travel(false); C.saluto(); st.arrived = st.t end
+      if not tv.landed then tv.landed = true; C.travel(false); C.arrivo(); st.arrived = st.t end
       D.gain = base_gain * ((tv.t - tv.ep1) / FADE_IN)
       if st.scene and st.scene.update then st.scene.update(st.ss, sdt, st.stime) end
     else
@@ -365,7 +376,7 @@ local function draw_interstitial()
   bars()
   if st.msg and st.t - st.msg_t < 3 then
     local age = st.t - st.msg_t
-    text_out(64, 34, tr(st.msg), 12 * min(1, age * 3, (3 - age) / 0.8), "center")
+    font(); screen.level(floor(12 * min(1, age * 3, (3 - age) / 0.8))); screen.move(64, 63); screen.text_center(tr(st.msg))
   end
 end
 
@@ -438,24 +449,37 @@ local function evoke()
   st.tp = math.max(st.tp, 1)
 end
 
+local function hint_active()
+  local e = st.sel and st.exits[st.sel]
+  return e and (st.t - st.sel_t) <= 8
+end
+
+-- il sentiero scelto: il nome scritto nella banda nera di sotto, con la sua freccia
 local function draw_hint()
   local e = st.sel and st.exits[st.sel]
   if not e then return end
   local age = st.t - st.sel_t
   if age > 8 then return end
+  local h = floor(st.lb * 8 + 0.5)
+  if h < 6 then return end
   local a = min(1, age * 4, (8 - age) / 1.5)
   local l = floor(12 * a + 0.5)
-  local nm = nome(L.by_id[e.id])
+  local nm = fit(nome(L.by_id[e.id]), 108)
+  font()
+  local w = screen.text_extents(nm)
+  local x0 = floor(64 - w / 2)
+  screen.level(l); screen.move(x0, 63); screen.text(nm)
+  -- la freccia, accanto al nome, nella banda
   local d = e.dir
-  nm = fit(nm, (d == "su" or d == "giu") and 124 or 108)
-  if d == "su" then arrow(64, 11, "su", l); text_out(64, 20, nm, l, "center")
-  elseif d == "giu" then arrow(64, 53, "giu", l); text_out(64, 49, nm, l, "center")
-  elseif d == "sx" then arrow(3, 32, "sx", l); text_out(9, 35, nm, l, "left")
-  elseif d == "dx" then arrow(124, 32, "dx", l); text_out(119, 35, nm, l, "right")
-  else arrow(64, 26, "segreto", l); text_out(64, 37, nm, l, "center") end
+  if d == "su" then arrow(x0 - 6, 59, "su", l)
+  elseif d == "giu" then arrow(x0 - 6, 59, "giu", l)
+  elseif d == "sx" then arrow(x0 - 6, 59, "sx", l)
+  elseif d == "dx" then arrow(x0 + w + 4, 59, "dx", l)
+  else arrow(x0 - 6, 59, "segreto", l) end
+  -- quanti sentieri ci sono, puntini nella banda di sopra
   for i = 1, #st.exits do
     screen.level(i == st.sel and l or floor(l / 3))
-    screen.rect(126, 54 - (#st.exits - i) * 3, 1, 2); screen.fill()
+    screen.rect(64 - #st.exits * 2 + (i - 1) * 4, 3, 2, 1); screen.fill()
   end
 end
 
@@ -485,18 +509,20 @@ end
 local function draw_overlays()
   local h = bars()
   local since = st.t - st.arrived
+  local hint = hint_active()
+  local mac_on = st.macro and st.t - st.macro_t < 2.5
   -- il nome del luogo, nella banda in alto
-  if since < 7 and h >= 6 then
+  if since < 7 and h >= 6 and not mac_on and not hint then
     local a = min(1, since / 1.2, (7 - since) / 1.2)
     if a > 0 then
       font()
       screen.level(floor(12 * a)); screen.move(64, 6); screen.text_center(fit(nome(st.place), 124))
-      screen.level(floor(4 * a)); screen.move(64, 63); screen.text_center(tr(tx(L.STRATI[st.place.strato])))
+      if not st.page then screen.level(floor(4 * a)); screen.move(64, 63); screen.text_center(tr(tx(L.STRATI[st.place.strato]))) end
     end
     draw_strata(a)
   end
   -- le parole del luogo, nella banda in basso: una riga alla volta
-  if st.page and st.t >= st.page_t and h >= 6 then
+  if st.page and st.t >= st.page_t and h >= 6 and not hint then
     local age = st.t - st.page_t
     local a = min(1, age / 0.7, (4.2 - age) / 0.7)
     if a > 0 then
@@ -505,30 +531,32 @@ local function draw_overlays()
     end
   end
   draw_hint()
-  -- la macro che stai muovendo
-  if st.macro and st.t - st.macro_t < 2.5 then
+  -- la macro che stai muovendo: il nome a destra nella banda in alto, la barra a sinistra
+  if mac_on and h >= 6 then
     local age = st.t - st.macro_t
     local a = min(1, (2.5 - age) / 0.6)
     local name, v, bip = st.macro[1], st.macro[2], st.macro[3]
     local l = floor(12 * a)
-    local y = 10 + h
-    text_out(125, y, name, l, "right")
-    screen.level(floor(3 * a)); screen.rect(84, y + 2, 42, 1); screen.fill()
+    font()
+    screen.level(l); screen.move(125, 6); screen.text_right(name)
+    local bx, bw, by = 3, 46, 3
+    screen.level(floor(3 * a)); screen.rect(bx, by, bw, 1); screen.fill()
     screen.level(l)
     if bip then
-      local c = 105
-      local w = floor(v * 21)
-      if w >= 0 then screen.rect(c, y + 2, w + 1, 1) else screen.rect(c + w, y + 2, -w + 1, 1) end
+      local c = bx + floor(bw / 2)
+      local w = floor(v * bw / 2)
+      if w >= 0 then screen.rect(c, by - 1, w + 1, 3) else screen.rect(c + w, by - 1, -w + 1, 3) end
       screen.fill()
-      screen.level(floor(6 * a)); screen.rect(c, y + 1, 1, 3); screen.fill()
+      screen.level(floor(6 * a)); screen.rect(c, by - 2, 1, 5); screen.fill()
     else
-      screen.rect(84, y + 2, max(1, floor(v * 42)), 1); screen.fill()
+      screen.rect(bx, by - 1, max(1, floor(v * bw)), 3); screen.fill()
     end
   end
-  if st.msg and st.t - st.msg_t < 3 then
+  if st.msg and st.t - st.msg_t < 3 and h >= 6 and not hint then
     local age = st.t - st.msg_t
     local a = min(1, age * 3, (3 - age) / 0.8)
-    text_out(64, 34, tr(st.msg), 12 * a, "center")
+    font()
+    screen.level(floor(12 * a)); screen.move(64, 63); screen.text_center(tr(st.msg))
   end
 end
 
@@ -597,6 +625,7 @@ function st.choose_lang()
   else
     st.mode = "luogo"; st.arrived = st.t; st.fade = 0
     C.go(st.place, false)
+    C.arrivo()
   end
 end
 
@@ -605,6 +634,7 @@ local function wake()
   if st.mode == "prologo" then
     st.mode = "luogo"; st.arrived = st.t; st.fade = 0
     C.go(st.place, false)
+    C.arrivo()
     return true
   end
   return false
@@ -627,7 +657,8 @@ function enc(n, d)
     else params:delta("spazio", d); st.macro = { tx(UI.spazio), params:get("spazio") / 0.4, true }; st.macro_t = st.t end
     return
   end
-  params:delta("m" .. n, d)
+  -- ogni scatto muove la macro di un trentesimo: in un giro si va da un capo all'altro
+  params:set("m" .. n, D.clamp(params:get("m" .. n) + d * 0.033, 0, 1))
   show_macro(n)
 end
 
@@ -641,7 +672,7 @@ function key(n, z)
   if wake() then return end
   if st.mode == "viaggio" and st.travel and st.travel.t >= st.travel.ep1 then
     -- sta già arrivando: il viaggio finisce qui e il tasto vale nel luogo
-    if not st.travel.landed then C.travel(false); C.saluto() end
+    if not st.travel.landed then C.travel(false); C.arrivo() end
     st.mode = "luogo"; st.fade = 1; st.travel = nil; C.travel(false)
   end
   if st.mode == "viaggio" and n == 3 and not st.k1 then skip_travel(); return end

@@ -548,6 +548,60 @@ Engine_Anamnesi : CroneEngine {
 		}).add;
 
 		// ------------------------------------------------------------
+		// IL RITMO (v7): la batteria degli oggetti, come in ERMO
+		// freq = intonazione, dur = coda, bright = colore
+		// ------------------------------------------------------------
+
+		// cassa morbida: un tonfo di legno e pelle
+		SynthDef(\an_kick, {
+			arg out = 0, freq = 52, amp = 0.3, dur = 0.5, pan = 0, bright = 0.5, atk = 0, det = 0;
+			var env, pe, sig;
+			env = EnvGen.ar(Env.perc(0.002, dur, 1, -5), doneAction: 2);
+			pe = EnvGen.ar(Env.new([3.2, 1], [0.05], -6));
+			sig = SinOsc.ar(freq * pe, 0.5pi) + (LPF.ar(BrownNoise.ar, 900) * EnvGen.ar(Env.perc(0.001, 0.02)) * bright);
+			Out.ar(out, Pan2.ar((sig * 1.3).tanh * env * amp * 0.55, pan));
+		}).add;
+
+		// legnetto: un oggetto posato sul tavolo
+		SynthDef(\an_wood, {
+			arg out = 0, freq = 900, amp = 0.3, dur = 0.12, pan = 0, bright = 0.5, atk = 0, det = 0;
+			var env, sig;
+			env = EnvGen.ar(Env.perc(0.001, dur, 1, -6), doneAction: 2);
+			sig = Ringz.ar(Impulse.ar(0) + (BPF.ar(WhiteNoise.ar, freq * 2, 0.5) * EnvGen.ar(Env.perc(0.0005, 0.006))),
+				freq * [1, 1.73, 2.61], [dur, dur * 0.6, dur * 0.3]).sum * 0.2;
+			sig = LPF.ar(sig, bright.linexp(0, 1, 1800, 9000));
+			Out.ar(out, Pan2.ar(sig * env * amp * 0.5, pan));
+		}).add;
+
+		// spazzola sul rullante
+		SynthDef(\an_snare, {
+			arg out = 0, freq = 190, amp = 0.3, dur = 0.25, pan = 0, bright = 0.5, atk = 0, det = 0;
+			var env, sig;
+			env = EnvGen.ar(Env.perc(atk.max(0.001), dur, 1, -4), doneAction: 2);
+			sig = (BPF.ar(WhiteNoise.ar, bright.linexp(0, 1, 1500, 5000), 0.8) * 0.8)
+				+ (SinOsc.ar(freq * EnvGen.ar(Env.new([1.4, 1], [0.03]))) * EnvGen.ar(Env.perc(0.001, 0.06)) * 0.4);
+			Out.ar(out, Pan2.ar(sig * env * amp * 0.4, pan));
+		}).add;
+
+		// piatto chiuso, sabbia nel barattolo
+		SynthDef(\an_hat, {
+			arg out = 0, freq = 7000, amp = 0.3, dur = 0.06, pan = 0, bright = 0.5, atk = 0, det = 0;
+			var env, sig;
+			env = EnvGen.ar(Env.perc(0.001, dur, 1, -5), doneAction: 2);
+			sig = HPF.ar(WhiteNoise.ar, freq * bright.linlin(0, 1, 0.5, 1.2)) + (HPF.ar(Pulse.ar(freq * [0.19, 0.27], 0.5).sum, 6000) * 0.2);
+			Out.ar(out, Pan2.ar(sig * env * amp * 0.16, pan));
+		}).add;
+
+		// tic metallico: l'orologio, la forchetta sul bicchiere
+		SynthDef(\an_tick, {
+			arg out = 0, freq = 2400, amp = 0.3, dur = 0.08, pan = 0, bright = 0.5, atk = 0, det = 0;
+			var env, sig;
+			env = EnvGen.ar(Env.perc(0.0005, dur, 1, -7), doneAction: 2);
+			sig = Mix(SinOsc.ar(freq * [1, 2.76, 5.4], 0, [1, 0.4, 0.2])) + (HPF.ar(WhiteNoise.ar, 6000) * 0.3 * bright);
+			Out.ar(out, Pan2.ar(sig * env * amp * 0.18, pan));
+		}).add;
+
+		// ------------------------------------------------------------
 		// L'ARIA
 		// ------------------------------------------------------------
 		SynthDef(\an_air, {
@@ -607,7 +661,7 @@ Engine_Anamnesi : CroneEngine {
 
 			sig = sig + (HPF.ar(PinkNoise.ar(1 ! 2), 3000) * hs * 0.04);
 			sig = LeakDC.ar(sig);
-			sig = Limiter.ar(sig * Lag.kr(amp, 1) * 1.7, 0.95, 0.01);
+			sig = Limiter.ar(sig * Lag.kr(amp, 1) * 1.27, 0.9, 0.01);
 			Out.ar(out, sig);
 		}).add;
 

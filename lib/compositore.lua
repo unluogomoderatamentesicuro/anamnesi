@@ -132,8 +132,8 @@ C.MACRO = {
   foglie = { { "foglie", "leaves" }, fn = function(P, v) add(P.t, "leaves", v * 0.7); add(P.t, "wind", v * 0.2); P.v.wind = v end },
   tormento = { { "tormento", "torment" }, fn = function(P, v)
     -- il dolore che si sente: rumore, fischio, stridore, accordi che battono
-    add(P.t, "noise", v * 0.9); add(P.t, "static", v * 0.6); add(P.t, "tinnitus", max(0, v - 0.3) * 0.9)
-    add(P.t, "shriek", max(0, v - 0.5) * 0.9); P.k.torment = (P.k.torment or 0) + v
+    add(P.t, "noise", v * 0.7); add(P.t, "static", v * 0.5); add(P.t, "tinnitus", max(0, v - 0.3) * 0.7)
+    add(P.t, "shriek", max(0, v - 0.5) * 0.6); P.k.torment = (P.k.torment or 0) + v
     add(P.f, "crush", v * 0.15); add(P.d, "detune", v * 0.7); add(P.d, "wob", v * 0.4); mul(P.d, "cut", 1 - v * 0.3)
     P.k.dens = P.k.dens * (1 - v * 0.25); P.v.shake = (P.v.shake or 0) + v * 0.6
   end },
@@ -141,7 +141,12 @@ C.MACRO = {
     P.k.glass = (P.k.glass or 0) + v; add(P.f, "shimmer", v * 0.3); add(P.f, "rev", v * 0.1)
   end },
   macchine = { { "macchine", "machines" }, fn = function(P, v)
-    add(P.t, "machine", v * 0.9); add(P.d, "shape", v * 0.2); P.k.pulse = P.k.pulse + v * 0.5
+    add(P.t, "machine", v * 0.6); add(P.d, "shape", v * 0.2); P.k.pulse = P.k.pulse + v * 0.5
+  end },
+  ritmo = { { "oggetti", "objects" }, fn = function(P, v) P.k.ritmo = (P.k.ritmo or 0) + v end },
+  fretta = { { "fretta", "hurry" }, fn = function(P, v)
+    P.k.bpm = P.k.bpm * (1 + v * 0.4); P.k.fretta = (P.k.fretta or 0) + v; add(P.t, "clock", v * 0.5); add(P.t, "heart", v * 0.3)
+    P.sp.hrate = P.sp.hrate * (1 + v * 0.7)
   end },
   ricordo = { { "ricordo", "memory" }, fn = function(P, v) P.k.tema = P.k.tema + v * 0.5; add(P.f, "echo", v * 0.3); add(P.f, "age", v * 0.15) end },
 }
@@ -219,6 +224,18 @@ local function euclid(k, n, rot)
   for i = 0, n - 1 do t[((i + (rot or 0)) % n) + 1] = ((i * k) % n) < k end
   return t
 end
+
+-- un numero dal nome: ogni luogo ha sempre la sua canzone e il suo ritmo
+local function hash(str)
+  local h = 7
+  for i = 1, #str do h = (h * 31 + str:byte(i)) % 1000003 end
+  return h
+end
+local function lcg(seed)
+  local x = floor(seed) % 2147483646 + 1
+  return function() x = (x * 16807) % 2147483647; return (x - 1) / 2147483646 end
+end
+C.hash = hash
 
 -------------------------------------------------------------------------------
 -- motivi
@@ -329,18 +346,18 @@ local function note_of(line, deg)
     semi = semi + 1
   end
   local oct = (line.ott or 0)
-  if line.ruolo == "melodia" or line.ruolo == "arpeggio" or line.ruolo == "scintille" then
+  if line.ruolo == "melodia" or line.ruolo == "canto" or line.ruolo == "arpeggio" or line.ruolo == "scintille" then
     oct = oct + floor((C.k.oct or 0) + 0.5)
     if C.climax and line.ruolo == "melodia" and random() < 0.3 then oct = oct + 1 end
   end
-  return C.prof.tonica + 12 * oct + semi
+  return C.prof.tonica + (C.key_off or 0) + 12 * oct + semi
 end
 
 local function voice(line, deg, len_ticks, ampmul, prio)
   local sp = C.prof.speciale or {}
   if not line.theme and random() < (C.k.frag or 0) * 0.2 + (sp.oblio or 0) then return end
   local midi = note_of(line, deg)
-  if line.ruolo == "melodia" and C.ac > 0.3 and random() < C.ac * 0.6 then
+  if (line.ruolo == "melodia" or line.ruolo == "canto") and C.ac > 0.3 and random() < C.ac * 0.6 then
     local dur = max(0.3, len_ticks * C.tickdur() * 2.2)
     C.play("musicbox", midi + 12, line.amp * line.pres * (ampmul or 1) * 0.75, dur, (line.pan or 0) * 0.5, 0.35, 0.001, prio)
     C.hooks.note({ ruolo = line.ruolo, str = "musicbox", deg = deg, midi = midi + 12, amp = line.amp, pan = 0, dur = dur, tema = line.theme })
@@ -356,11 +373,11 @@ local function voice(line, deg, len_ticks, ampmul, prio)
     C.later(2, function() C.play(line.str, midi + 12, amp * 0.28, dur * 0.6, -pan, 0.2, 0.004) end)
   end
   -- e sotto, una voce che canticchia la stessa nota, piano, quando il luogo è pieno
-  if line.ruolo == "melodia" and (C.life or 0) > 0.85 and random() < 0.3 then
+  if (line.ruolo == "melodia" or line.ruolo == "canto") and (C.life or 0) > 0.85 and random() < 0.3 then
     C.play("hum", midi - 12, amp * 0.35, dur * 1.2, pan * 0.5, 0.2, 0.3)
   end
   -- eco del ricordo: un carillon che raddoppia la melodia
-  if line.ruolo == "melodia" and random() < (C.ac * 0.45 + (C.k.doubling or 0) * 0.5) then
+  if (line.ruolo == "melodia" or line.ruolo == "canto") and random() < (C.ac * 0.45 + (C.k.doubling or 0) * 0.5) then
     C.later(1, function() C.play("musicbox", midi + 12, amp * 0.45, 3, -pan, 0.3, 0.001) end)
   end
   if random() < (C.k.frag or 0) * 0.18 then
@@ -562,20 +579,268 @@ R.onde = function(line, ctx)
 end
 
 -------------------------------------------------------------------------------
--- progressione
+-- LA CANZONE DEL LUOGO (v7)
+-- Ogni luogo ha un canto suo, malinconico, che nasce dal suo nome:
+-- torna uguale ogni volta che ci torni, e così lo riconosci.
 -------------------------------------------------------------------------------
-function C.next_chord()
-  local p = C.prof
-  local i = (C.chord_i % #p.prog) + 1
-  return chord_from(p.prog[i] - 1, p.accordo)
+local RIT16 = { { 8, 4, 4 }, { 4, 4, 8 }, { 6, 2, 8 }, { 12, 4 }, { 4, 2, 2, 8 }, { 2, 6, 8 }, { 10, 2, 4 }, { 4, 8, 4 } }
+local RIT8 = { { 8 }, { 4, 4 }, { 6, 2 }, { 2, 2, 4 }, { 4, 4 } }
+
+local function durs_for(clen, r, last)
+  local out = {}
+  local left = clen
+  while left > 0 do
+    if left >= 16 then
+      local pat = RIT16[1 + floor(r() * #RIT16)]
+      if last and left == 16 then pat = ({ { 4, 12 }, { 16 }, { 2, 2, 12 } })[1 + floor(r() * 3)] end
+      for _, d in ipairs(pat) do out[#out + 1] = d end
+      left = left - 16
+    elseif left >= 8 then
+      local pat = RIT8[1 + floor(r() * #RIT8)]
+      if last and left == 8 then pat = { 8 } end
+      for _, d in ipairs(pat) do out[#out + 1] = d end
+      left = left - 8
+    else
+      out[#out + 1] = left; left = 0
+    end
+  end
+  return out
 end
+
+local function gen_canto(prog, battute, bar, r, scn)
+  local tune = {}
+  local t = 0
+  local clen = bar * battute
+  local lo, hi = -1, scn + 4
+  local prev = 3 + floor(r() * 3)
+  for ci, root in ipairs(prog) do
+    local rd = root - 1
+    local last = ci == #prog
+    -- dove arrivare: un tono dell'accordo vicino a dove eravamo, o un salto in su
+    local cands = {}
+    for o = -1, 1 do for _, k in ipairs({ 0, 2, 4 }) do cands[#cands + 1] = rd + k + o * scn end end
+    local leap = (ci == 1 or ci == 3) and r() < 0.4
+    local best, bd = rd + 2, 1e9
+    for _, c in ipairs(cands) do
+      local d
+      if leap then d = abs(c - (prev + 4)) else d = abs(c - prev) end
+      if c < lo or c > hi then d = d + 8 end
+      d = d + r() * 1.2
+      if d < bd then best, bd = c, d end
+    end
+    if last then
+      -- la fine: si torna a casa, giù, piano
+      best = rd; while best > prev + 1 do best = best - scn end; if best < lo then best = best + scn end
+    end
+    local ds = durs_for(clen, r, last)
+    local cur = best
+    for i, d in ipairs(ds) do
+      local ev = { t = t, len = d }
+      if i == 1 then
+        if not last and #ds > 1 and r() < 0.18 then
+          ev.rest = true
+        elseif #ds > 1 and d >= 4 and r() < 0.32 then
+          -- l'appoggiatura: arriva da sopra e scende, come un sospiro
+          tune[#tune + 1] = { t = t, len = 2, deg = cur + 1, app = true }
+          ev.t = t + 2; ev.len = d - 2
+        end
+        ev.deg = cur
+      else
+        -- poi si scende, quasi sempre, per gradi
+        local step = r() < 0.68 and -1 or (r() < 0.6 and 1 or (r() < 0.5 and -2 or 2))
+        cur = cur + step
+        if cur < lo then cur = cur + 2 elseif cur > hi then cur = cur - 2 end
+        ev.deg = cur
+      end
+      if last and i == #ds then ev.deg = best; ev.fine = true end
+      if not ev.rest then tune[#tune + 1] = ev end
+      t = t + d
+    end
+    prev = cur
+  end
+  return tune, t
+end
+
+-------------------------------------------------------------------------------
+-- IL RITMO DEGLI OGGETTI (v7), come in ERMO
+-- ogni oggetto è un colpo; il modo di suonare decide se è uno, due, tre
+-- ripetuti, una terzina, una quartina. A ogni sezione il tavolo gira.
+-------------------------------------------------------------------------------
+-- { voce, frequenza, coda, colore, volume }
+local KITS = {
+  legno    = { { "kick", 52, 0.45, 0.3, 0.9 }, { "wood", 760, 0.14, 0.5, 0.8 }, { "wood", 1180, 0.09, 0.6, 0.6 }, { "hat", 6500, 0.04, 0.4, 0.5 } },
+  casa     = { { "kick", 50, 0.5, 0.4, 1.0 }, { "snare", 190, 0.22, 0.4, 0.75 }, { "wood", 980, 0.1, 0.5, 0.55 }, { "hat", 7200, 0.05, 0.5, 0.55 } },
+  spazzole = { { "kick", 48, 0.55, 0.2, 0.7 }, { "snare", 170, 0.32, 0.25, 0.7 }, { "snare", 230, 0.16, 0.6, 0.45 }, { "hat", 6000, 0.08, 0.3, 0.5 } },
+  metallo  = { { "kick", 46, 0.4, 0.5, 0.85 }, { "tick", 1900, 0.09, 0.6, 0.7 }, { "tick", 3100, 0.05, 0.8, 0.55 }, { "hat", 8000, 0.03, 0.8, 0.5 } },
+  cuore    = { { "kick", 44, 0.5, 0.1, 1.0 }, { "kick", 58, 0.3, 0.1, 0.6 }, { "tick", 2600, 0.04, 0.3, 0.4 }, { "hat", 5000, 0.03, 0.2, 0.3 } },
+  macchina = { { "kick", 55, 0.3, 0.6, 0.9 }, { "snare", 240, 0.12, 0.8, 0.65 }, { "tick", 2200, 0.05, 0.9, 0.6 }, { "hat", 9000, 0.03, 0.9, 0.6 } },
+  vetro    = { { "kick", 50, 0.6, 0.2, 0.6 }, { "tick", 3300, 0.12, 0.4, 0.55 }, { "wood", 1600, 0.08, 0.8, 0.5 }, { "tick", 4700, 0.05, 0.6, 0.4 } },
+}
+C.KITS = KITS
+local MODI_R = { { 1, 1 }, { 1, 1 }, { 1, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 }, { 3, 2 }, { 4, 3 } }
+
+local function e16(k, rot)
+  local t = euclid(k, 16, rot)
+  return t
+end
+
+local function gen_ritmo(dens, r)
+  local pat = {}
+  for i = 1, 16 do pat[i] = {} end
+  local function put(o, on, wild)
+    for i = 1, 16 do
+      if on[i] then
+        local m = MODI_R[1]
+        if wild and r() < wild then m = MODI_R[1 + floor(r() * #MODI_R)] end
+        pat[i][#pat[i] + 1] = { o = o, n = m[1], span = m[2], acc = (i == 1 or i == 9) and 1 or (0.65 + r() * 0.3) }
+      end
+    end
+  end
+  put(1, e16(2 + floor(dens * 3 + r() * 1.5), 0), nil)
+  local mid = {}
+  for i = 1, 16 do mid[i] = (i == 5 or i == 13) end
+  if r() < 0.4 then mid = e16(3 + floor(r() * 2), 3 + floor(r() * 3)) end
+  put(2, mid, 0.15 + dens * 0.15)
+  put(3, e16(2 + floor(r() * 3 * dens + 0.5), floor(r() * 16)), 0.25 + dens * 0.25)
+  put(4, e16(4 + floor(dens * 8 * r() + dens * 3), floor(r() * 4)), 0.2)
+  return pat
+end
+
+-- il tavolo gira: un oggetto si sposta, uno cambia modo, a volte uno sparisce
+local function ruota(pat, r)
+  local k = 1 + floor(r() * 3)
+  local rows = { {}, {}, {}, {} }
+  for i = 1, 16 do for _, h in ipairs(pat[i]) do rows[h.o][#rows[h.o] + 1] = { i = i, h = h } end end
+  local o = 2 + floor(r() * 3)
+  local out = {}
+  for i = 1, 16 do out[i] = {} end
+  for i = 1, 16 do
+    for _, h in ipairs(pat[i]) do
+      local j = i
+      if h.o == o then j = ((i - 1 + k) % 16) + 1 end
+      if not (h.o ~= 1 and r() < 0.06) then
+        if h.o ~= 1 and r() < 0.15 then local m = MODI_R[1 + floor(r() * #MODI_R)]; h.n = m[1]; h.span = m[2] end
+        out[j][#out[j] + 1] = h
+      end
+    end
+  end
+  -- e ogni tanto un oggetto nuovo sul tavolo
+  if r() < 0.5 then
+    local i = 1 + floor(r() * 16)
+    local m = MODI_R[1 + floor(r() * #MODI_R)]
+    out[i][#out[i] + 1] = { o = 2 + floor(r() * 3), n = m[1], span = m[2], acc = 0.7 }
+  end
+  return out
+end
+
+-------------------------------------------------------------------------------
+-- LA FORMA: il luogo racconta in sezioni, e ogni sezione si sente
+-------------------------------------------------------------------------------
+local FORME = {
+  { "A", "A", "B", "A", "C", "D" },
+  { "A", "B", "A", "C", "B", "D" },
+  { "A", "A", "C", "B", "A", "D" },
+  { "A", "B", "B", "C", "A", "D" },
+  { "A", "D", "A", "B", "C", "A" },
+}
+
+local function prog_variant(prog, r, kind)
+  local n = #prog
+  local out = {}
+  if kind == "B" then
+    local rot = 1 + floor(r() * max(1, n - 1))
+    for i = 1, n do out[i] = prog[((i - 1 + rot) % n) + 1] end
+    local alt = { 6, 4, 2, 3 }
+    out[1 + floor(r() * n)] = alt[1 + floor(r() * #alt)]
+  elseif kind == "C" then
+    for i = 1, n do out[i] = prog[i] end
+    if n >= 3 then out[n] = ({ 4, 5, 6 })[1 + floor(r() * 3)] end
+  else
+    for i = 1, n do out[i] = prog[i] end
+  end
+  return out
+end
+
+local function make_section(p, label, r)
+  local bb = p.battute or 2
+  local urg = p.urgenza or 0
+  local s = { label = label, key = 0 }
+  if label == "A" then
+    s.prog = p.prog; s.battute = bb; s.passes = (bb <= 1) and 2 or 1; s.dens = 1; s.canto = "tema"; s.ritmo = 0.55; s.mel = false
+  elseif label == "B" then
+    s.prog = prog_variant(p.prog, r, "B"); s.battute = max(1, floor(bb / 2 + 0.5)); s.passes = 2
+    s.dens = 1.15; s.canto = (r() < 0.55) and "contro" or nil; s.ritmo = 1; s.mel = true
+  elseif label == "C" then
+    s.prog = prog_variant(p.prog, r, "C"); s.battute = max(1, floor(bb / 2 + 0.5)); s.passes = 2
+    s.dens = 1.35; s.canto = "alto"; s.ritmo = 1; s.mel = false; s.climax = true
+    if r() < 0.45 then s.key = ({ 2, 5, -2, 3 })[1 + floor(r() * 4)] end
+  else
+    s.prog = p.prog; s.battute = bb; s.passes = 1; s.dens = 0.4; s.ritmo = 0; s.mel = true; s.sospeso = true
+  end
+  if urg > 0 then
+    s.battute = max(1, floor(s.battute * (1 - urg * 0.5) + 0.5))
+    if label ~= "D" then s.ritmo = max(s.ritmo, urg) end
+  end
+  s.len_chords = #s.prog * s.passes
+  return s
+end
+
+local function index_tune(tune)
+  local at = {}
+  for _, e in ipairs(tune or {}) do at[e.t] = e end
+  return at
+end
+
+local function bar_len() return ((C.prof and C.prof.metro) or 4) * 2 end
+
+local function start_section(i)
+  local p = C.prof
+  C.sec_i = i
+  local n = #C.form
+  local lab = C.form[((i - 1) % n) + 1]
+  local loop = floor((i - 1) / n)
+  local r = lcg(C.seed + i * 977 + loop * 31)
+  local sec = make_section(p, lab, r)
+  C.sec = sec
+  C.sec_t = 0
+  C.key_off = sec.key
+  C.next_label = C.form[(i % n) + 1]
+  local bar = bar_len()
+  local scn = #C.scala()
+  local cl = C.canto_line
+  if cl then
+    local tune
+    if sec.canto == "tema" or sec.canto == "alto" then
+      local key = sec.label .. sec.battute .. table.concat(sec.prog, ",")
+      if sec.canto == "tema" then key = "A" .. sec.battute .. table.concat(p.prog, ",") end
+      C.tune_cache[key] = C.tune_cache[key] or gen_canto(sec.prog, sec.battute, bar, lcg(C.seed + (sec.canto == "alto" and 5 or 0)), scn)
+      tune = C.tune_cache[key]
+      cl.str, cl.ott, cl.amp, cl.bright = cl.str0, cl.ott0, cl.amp0, cl.bright0
+    elseif sec.canto == "contro" then
+      tune = gen_canto(sec.prog, sec.battute, bar, lcg(C.seed + i * 13 + loop), scn)
+      cl.str, cl.ott, cl.amp, cl.bright = cl.contro, cl.ott0 - 1, cl.amp0 * 0.9, 0.3
+    end
+    cl.tune = tune
+    cl.at = index_tune(tune)
+    cl.len = bar * sec.battute * #sec.prog
+  end
+  if C.ritmo_line and i > 1 then C.ritmo_line.pat = ruota(C.ritmo_line.pat, r) end
+  for idx, l in ipairs(C.lines) do
+    if not l.extra and l.base_on ~= nil then
+      if lab == "A" then l.on = l.base_on
+      elseif lab == "D" then l.on = (idx == 1) or (l.ruolo == "onde")
+      else l.on = l.base_on or r() < 0.5 end
+    end
+  end
+end
+C.start_section = start_section
 
 local function set_drone_chord()
   local p = C.prof
   local sc = C.scala()
   local root = C.chord_root
   local ped = p.pedale
-  local t = p.tonica
+  local t = p.tonica + (C.key_off or 0)
   local f1 = t - 12 + (ped and 0 or deg2semi(root, sc))
   if f1 > t - 5 then f1 = f1 - 12 end
   local f2 = t - 12 + deg2semi((ped and 0 or root) + 4, sc)
@@ -590,13 +855,95 @@ local function set_drone_chord()
   engine.drone("f4", mtof(f4 + o))
 end
 
-local function advance_chord()
-  local p = C.prof
-  C.chord_i = (C.chord_i % #p.prog) + 1
-  if random() < (p.sosta or 0.15) then C.chord_i = max(1, C.chord_i - 1) end
-  C.chord_root = p.prog[C.chord_i] - 1
-  C.chord = chord_from(C.chord_root, p.accordo)
-  set_drone_chord()
+function C.next_chord()
+  local sec = C.sec
+  local prog = sec and sec.prog or C.prof.prog
+  local i = (C.chord_i % #prog) + 1
+  return chord_from(prog[i] - 1, C.prof.accordo)
+end
+
+-------------------------------------------------------------------------------
+-- i nuovi ruoli
+-------------------------------------------------------------------------------
+R.canto = function(line, ctx)
+  if not line.tune or not line.len or line.len <= 0 then return end
+  if (line.hold or 0) > C.tick_n then return end
+  local pos = ctx.sec_t % line.len
+  local ev = line.at[pos]
+  if not ev then return end
+  local n = #line.tune
+  local k = 0
+  for i, e in ipairs(line.tune) do if e == ev then k = i end end
+  local arc = 0.78 + 0.32 * math.sin(math.pi * min(1, k / max(1, n) * 1.1))
+  if ev.app then arc = arc * 1.1 elseif ev.fine then arc = arc * 0.8 end
+  local late = random() * 0.035
+  local lenm = ev.fine and 1.8 or 1
+  clock.run(function()
+    clock.sleep(late)
+    voice(line, ev.deg, ev.len * lenm, arc, 1)
+    -- al culmine, sotto, una seconda voce d'archi una terza più giù
+    if C.sec and C.sec.canto == "alto" and line.harm and not ev.app then
+      voice(line.harm, ev.deg - 2, ev.len * lenm, arc * 0.8)
+    end
+  end)
+end
+
+R.ritmo = function(line, ctx)
+  local sec = C.sec
+  local lvl = (sec and sec.ritmo or 0) * (line.lvl or 1)
+  -- se il luogo ha la manopola degli oggetti, è lei che decide quanti suonano
+  local mr = C.mac and C.mac.ritmo
+  if mr then lvl = (0.35 + 0.65 * (sec and sec.ritmo or 0)) * mr * 1.6 end
+  if lvl < 0.05 or not line.pat then return end
+  local kit = KITS[line.kit] or KITS.legno
+  local step = (ctx.sec_t % 16) + 1
+  local td = C.tickdur()
+  local maxo = lvl < 0.4 and 1 or (lvl < 0.7 and 3 or 4)
+  local base = line.amp * C.fade_in * (C.k.amp or 1) * (0.55 + 0.45 * lvl)
+  if C.travelling then return end
+  local function hit(obj, acc, delay, o)
+    local f = obj[2] * (1 + (random() - 0.5) * 0.02)
+    local a = base * obj[5] * acc
+    local pn = (obj[1] == "hat" or obj[1] == "tick") and (random() - 0.5) * 0.6 or (random() - 0.5) * 0.2
+    local function go()
+      engine.note(obj[1], f, a, obj[3], pn, obj[4], 0, 0)
+      -- le scene vedono i colpi: l'ascia, il martello, le bacchette
+      C.hooks.note({ ruolo = "ritmo", str = obj[1], o = o or 2, amp = a, pan = pn })
+    end
+    if delay and delay > 0.002 then clock.run(function() clock.sleep(delay); go() end) else go() end
+  end
+  for _, h in ipairs(line.pat[step]) do
+    if h.o <= maxo then
+      local obj = kit[h.o]
+      for r = 0, h.n - 1 do
+        hit(obj, h.acc * (r == 0 and 1 or 0.72), td * h.span * r / h.n + (random() * 0.008), h.o)
+      end
+    end
+  end
+  -- prima del cambio di sezione, un rullo
+  if ctx.left and ctx.left <= 2 and ctx.left > 0 and C.next_label ~= sec.label and C.next_label ~= "D" then
+    local obj = kit[2]
+    local n = ctx.left == 1 and 4 or 3
+    for r = 0, n - 1 do hit(obj, 0.45 + 0.15 * r, td * r / n) end
+  end
+  -- e le note sul tavolo: un oggetto che suona
+  if line.nota and step % 4 == 3 and random() < 0.55 * lvl then
+    voice(line.nota, pick(C.chord) + pick({ 0, 0, #C.scala() }), 1, 0.8)
+  end
+end
+
+R.ostinato = function(line, ctx)
+  local sec = C.sec
+  if not sec or sec.sospeso then return end
+  local u = line.urg or 0.5
+  local t = ctx.sec_t
+  local deg = (t % 4 < 2) and C.chord_root or C.chord_root + 4
+  if u > 0.6 and t % 8 == 7 then deg = C.chord_root + 5 end
+  local grow = (0.55 + 0.6 * (C.sec_prog or 0)) * (1 + (C.k.fretta or 0) * 0.8)
+  voice(line, deg, 1, grow * ((t % 2 == 0) and 1 or 0.68))
+  if u > 0.5 and random() < u * 0.45 then
+    clock.run(function() clock.sleep(C.tickdur() * 0.5); voice(line, deg, 0.5, grow * 0.5) end)
+  end
 end
 
 -------------------------------------------------------------------------------
@@ -604,11 +951,10 @@ end
 -------------------------------------------------------------------------------
 function C.tick()
   local p = C.prof
-  if not p then return end
+  if not p or not C.sec then return end
   C.tick_n = C.tick_n + 1
   local t = C.tick_n
-  local bar = (p.metro or 4) * 2
-  local chord_len = bar * (p.battute or 2)
+  local bar = bar_len()
   local local_t = t - C.t0
 
   local pend = C.pending[t]
@@ -617,29 +963,65 @@ function C.tick()
     C.pending[t] = nil
   end
 
-  local chord_start = (local_t % chord_len) == 0
-  if chord_start and local_t > 0 then advance_chord() end
+  local sec = C.sec
+  local chord_len = bar * sec.battute
+  local total = chord_len * sec.len_chords
+  if C.sec_t >= total then
+    start_section(C.sec_i + 1)
+    sec = C.sec
+    chord_len = bar * sec.battute
+    total = chord_len * sec.len_chords
+    -- lo stacco: chi entra si fa sentire
+    if sec.label ~= "D" then
+      local sc = C.scala()
+      local root = sec.prog[1] - 1
+      local m = p.tonica + (C.key_off or 0) + deg2semi(root, sc) - 24
+      if m < 30 then m = m + 12 end
+      C.play("sub", m, 0.24, chord_len * C.tickdur() * 0.8, 0, 0.3, 0.02, 1)
+      if C.ritmo_line or sec.climax then engine.note("kick", 46, 0.22 * C.fade_in, 0.9, 0, 0.2, 0, 0) end
+    end
+  end
+  local chord_start = (C.sec_t % chord_len) == 0
+  if chord_start then
+    local idx = floor(C.sec_t / chord_len)
+    C.chord_i = (idx % #sec.prog) + 1
+    C.chord_root = sec.prog[C.chord_i] - 1
+    C.chord = chord_from(C.chord_root, p.accordo)
+    set_drone_chord()
+  end
+  C.sec_prog = C.sec_t / max(1, total)
+  local left = total - C.sec_t
 
-  -- l'arco del luogo: si apre, arriva al culmine, si svuota fino al silenzio
+  -- prima del culmine, un nastro al contrario che arriva sul primo colpo
+  if left == bar and C.next_label == "C" and not C.travelling then
+    local sc = C.scala()
+    local m = p.tonica + deg2semi((sec.prog[1] or 1) - 1, sc)
+    C.play("swell", m, 0.18, bar * C.tickdur(), 0, 0.5, 0, 1)
+    C.play("swell", m + 7, 0.1, bar * C.tickdur(), 0.4, 0.4, 0, 1)
+  end
+  -- prima del sospeso, un respiro: tutto si ferma per un attimo
+  if left == 2 and C.next_label == "D" then C.mute = 3 end
+
+  -- l'arco del luogo: si apre, arriva al culmine, si svuota
   local arc = (p.arco or 360)
   local life = 0.6 + 0.4 * math.sin(2 * math.pi * local_t / arc + 0.6)
-  C.climax = life > 0.94
-  C.life = life
+  C.climax = sec.climax or life > 0.94
+  C.life = sec.climax and max(life, 0.9) or life
 
   local k = C.k
-  local dens = (p.densita or 1) * (k.dens or 1) * life * (1 - C.ac * 0.2)
+  local dens = (p.densita or 1) * (k.dens or 1) * life * sec.dens * (1 - C.ac * 0.2)
   if C.travelling then dens = dens * 0.25 end
 
-  if t % bar == 0 then
+  if local_t % bar == 0 then
     local any = false
     for _, l in ipairs(C.lines) do
-      if not l.extra then
-        if random() < 0.07 then l.on = random() < (0.35 + l.prob * 0.6) end
+      if not l.extra and l.base_on ~= nil then
+        if random() < 0.03 then l.on = random() < (0.35 + l.prob * 0.6) end
         if l.on and l.ruolo ~= "scintille" then any = true end
       end
     end
     if not any and #C.lines > 0 then
-      local l = C.lines[random(#C.lines)]
+      local l = C.lines[1]
       if not l.extra then l.on = true end
     end
   end
@@ -651,42 +1033,46 @@ function C.tick()
     local base = (st == -2) and 0.08 or 0.16
     k.torment = (k.torment or 0) + base + max(0, (life - 0.85)) * 2.5 * (st == -3 and 1 or 0.6)
   end
-  local swell = C.travelling and 0 or clamp((life - 0.8) * 3.5, 0, 0.75)
+  local swell = C.travelling and 0 or clamp((C.life - 0.8) * 3.5, 0, 0.75)
   for _, l in ipairs(C.lines) do
     if l.extra then
       local v = k[l.extra] or 0
       if l.extra == "strings" then
-        local sw = (C.place and C.place.strato or 0) <= -2 and swell * 0.4 or swell
+        local sw = st <= -2 and swell * 0.4 or swell
         v = max(v, sw, (C.glow or 0) * 0.45, C.bridge or 0)
       end
-      if l.extra == "choir" then v = max(v, clamp((life - 0.9) * 4, 0, 0.35)) end
+      if l.extra == "choir" then v = max(v, clamp((C.life - 0.9) * 4, 0, 0.35)) end
       l.on = v > 0.05
       l.gain = clamp(v, 0, 1.5)
     end
   end
 
-  local ctx = { tick = local_t, bar = bar, chord_len = chord_len, chord_start = chord_start, dens = dens }
+  local ctx = { tick = C.sec_t, sec_t = C.sec_t, bar = bar, chord_len = chord_len, chord_start = chord_start, dens = dens, left = left }
+  local muted = (C.mute or 0) > 0
   for _, l in ipairs(C.lines) do
     local target = l.on and 1 or 0
-    l.pres = l.pres + (target - l.pres) * (l.extra and 0.15 or 0.03)
+    if not l.extra and (l.ruolo == "melodia" or l.ruolo == "risposta") and not sec.mel then target = 0 end
+    l.pres = l.pres + (target - l.pres) * (l.extra and 0.15 or 0.05)
     if l.extra then
       if l.on and not l.was_on and R[l.ruolo] then
-        -- l'entrata: chi è chiamato da una manopola si fa sentire subito
         l.pres = max(l.pres, 0.5)
-        local c2 = { tick = ctx.tick, bar = ctx.bar, chord_len = ctx.chord_len, chord_start = true, dens = max(1, ctx.dens) }
+        local c2 = { tick = ctx.tick, sec_t = ctx.sec_t, bar = ctx.bar, chord_len = ctx.chord_len, chord_start = true, dens = max(1, ctx.dens) }
         R[l.ruolo](l, c2)
       end
       l.was_on = l.on
     end
-    if l.pres > 0.02 then
+    if l.pres > 0.02 and not muted then
       local f = R[l.ruolo]
       if f then f(l, ctx) end
     end
   end
 
+  C.sec_t = C.sec_t + 1
+  C.mute = max(0, (C.mute or 0) - 1)
   if C.fade_in < 1 then C.fade_in = min(1, C.fade_in + 0.02) end
   C.bridge = max(0, (C.bridge or 0) - 0.005)
-  C.bpm = C.bpm + (C.bpm_t * (k.bpm or 1) * (1 - C.ac * 0.1) - C.bpm) * 0.03
+  local acc = 1 + (p.urgenza or 0) * 0.2 * (sec.sospeso and 0 or C.sec_prog)
+  C.bpm = C.bpm + (C.bpm_t * (k.bpm or 1) * acc * (1 - C.ac * 0.1) - C.bpm) * 0.05
 end
 
 -------------------------------------------------------------------------------
@@ -708,7 +1094,7 @@ function C.update(dt)
   -- le macro inseguono il loro obiettivo con calma
   for i = 1, 3 do
     local d = C.mt[i] - C.mc[i]
-    local s = 0.45 * dt
+    local s = 1.1 * dt
     C.mc[i] = abs(d) <= s and C.mt[i] or C.mc[i] + (d > 0 and s or -s)
   end
   do
@@ -729,8 +1115,10 @@ function C.update(dt)
   P.f.efb = P.f.efb or 3; P.f.etime = P.f.etime or 0.45
 
   C.mac = {}
+  local base_t = copy(P.t)
   for i = 1, 3 do
-    local id = p.macro and p.macro[i]
+    local pm = C.place and C.place.macro
+    local id = pm and pm[i]
     local M = id and C.MACRO[id]
     if M then
       local v = C.mc[i]
@@ -740,6 +1128,8 @@ function C.update(dt)
       if id == "luce" then P.k.bright = v * 0.3 end
     end
   end
+  -- quello che le manopole aggiungono ai paesaggi sonori si sente, ma non satura
+  for k, v in pairs(P.t) do local b = base_t[k] or 0; if v > b then P.t[k] = b + (v - b) * 0.5 end end
   -- negli strati più bassi il dolore c'è sempre, sotto, e al culmine sale
   local stv = C.place and C.place.strato or 0
   if stv <= -2 and not C.travelling then
@@ -819,21 +1209,53 @@ local EXTRA = {
 local function build_lines(p)
   local lines = {}
   C.answer = nil
+  local mel
   for i, def in ipairs(p.linee or {}) do
     local l = copy(def)
     l.amp = l.amp or 0.3
     l.prob = l.prob or 0.5
     l.pres = 0
     l.on = (i <= 2) or (random() < l.prob)
+    l.base_on = l.on
     l.wait = random(0, 6)
     l.motif = gen_motif(l.lens)
     l.onda_len = random(4, 10)
     lines[#lines + 1] = l
     if l.ruolo == "risposta" then C.answer = l end
+    if l.ruolo == "melodia" and not mel then mel = l end
   end
-  if (C.place and C.place.strato or 0) <= -1 and not p.no_lamento then
+  local st = C.place and C.place.strato or 0
+  if st <= -1 and not p.no_lamento then
     lines[#lines + 1] = { ruolo = "lamento", str = "bowed", ott = -1, amp = 0.14, prob = 0.3, pres = 0, on = true, wait = 0,
       motif = gen_motif(), onda_len = 6, legato = 1.2, atk = 0.8, bright = 0.2, spread = 0.2 }
+  end
+  -- il canto del luogo
+  local cd = p.canto or {}
+  local str0 = cd.str or (mel and mel.str) or (st >= 2 and "celesta" or (st <= -3 and "bowed" or "piano"))
+  if not cd.str and (str0 == "musicbox" or str0 == "glitch" or str0 == "whisper" or str0 == "cluster" or str0 == "scrape" or str0 == "drop") then str0 = "piano" end
+  local cl = { ruolo = "canto", str = str0, str0 = str0, ott = cd.ott or (mel and mel.ott) or 0, amp = cd.amp or ((mel and mel.amp or 0.24) * 1.05),
+    bright = cd.bright or (mel and mel.bright) or 0.3, legato = cd.legato or 1.35, atk = (str0 == "bowed" or str0 == "strings") and 0.35 or nil,
+    pan = 0.05, spread = 0.15, pres = 0, on = true, wait = 0, theme = true,
+    contro = cd.contro or (st <= -1 and "bowed" or (st >= 2 and "strings" or "rhodes")) }
+  cl.ott0, cl.amp0, cl.bright0 = cl.ott, cl.amp, cl.bright
+  if cl.ott0 > 1 then cl.ott0 = 1; cl.ott = 1 end
+  cl.harm = { ruolo = "canto2", str = "strings", ott = cl.ott0, amp = cl.amp0 * 0.55, pres = 1, gain = 1, legato = 1.2, atk = 0.5, bright = 0.3, pan = -0.3, spread = 0.2, theme = true }
+  lines[#lines + 1] = cl
+  C.canto_line = cl
+  -- il ritmo degli oggetti
+  C.ritmo_line = nil
+  if p.ritmo then
+    local rd = p.ritmo
+    local rl = { ruolo = "ritmo", kit = rd.kit or "legno", amp = rd.amp or 0.4, lvl = rd.lvl or 1, pres = 0, on = true, wait = 0,
+      pat = gen_ritmo(rd.dens or 0.5, lcg(C.seed + 77)) }
+    if rd.nota then rl.nota = { ruolo = "nota", str = rd.nota, ott = rd.nota_ott or 1, amp = rd.nota_amp or 0.16, pres = 1, gain = 1, legato = 1.2, bright = 0.5, pan = 0.3, spread = 0.6 } end
+    lines[#lines + 1] = rl
+    C.ritmo_line = rl
+  end
+  -- l'urgenza: una nota che batte e non si ferma
+  if (p.urgenza or 0) > 0.25 then
+    lines[#lines + 1] = { ruolo = "ostinato", str = p.ostinato or "pluck", ott = p.ostinato_ott or 0, amp = 0.13 + p.urgenza * 0.08, urg = p.urgenza,
+      prob = 1, pres = 0, on = true, wait = 0, legato = 0.7, bright = 0.55, pan = -0.2, spread = 0.3 }
   end
   for _, def in ipairs(EXTRA) do
     local l = copy(def)
@@ -847,12 +1269,18 @@ function C.go(place, quick)
   local p = place.musica
   C.prof = p
   C.place = place
+  C.seed = hash(place.id)
+  C.form = FORME[(C.seed % #FORME) + 1]
+  C.tune_cache = {}
+  C.mute = 0
   C.bpm_t = p.bpm or 60
   if quick then C.bpm = C.bpm_t end
   C.lines = build_lines(p)
   C.t0 = C.tick_n
+  C.key_off = 0
+  start_section(1)
   C.chord_i = 1
-  C.chord_root = p.prog[1] - 1
+  C.chord_root = C.sec.prog[1] - 1
   C.chord = chord_from(C.chord_root, p.accordo)
   C.sent = {}
   local defs = place.macro_def or {}
@@ -861,10 +1289,11 @@ function C.go(place, quick)
     C.mt[i] = defs[i] or ((M and M.bip) and 0.5 or 0.2)
     if quick then C.mc[i] = C.mt[i] end
   end
+  if C.on_macros then C.on_macros() end
   engine.drone("glide", quick and 0.1 or (p.glide or 10))
-  engine.tex("lag", quick and 0.5 or 7)
-  engine.drone("lag", quick and 0.5 or 5)
-  engine.fx("lag", quick and 0.5 or 5)
+  engine.tex("lag", quick and 0.5 or 5)
+  engine.drone("lag", quick and 0.5 or 4)
+  engine.fx("lag", quick and 0.5 or 4)
   set_drone_chord()
   C.fade_in = quick and 0 or 0.3
   C.update(0.1)
@@ -872,16 +1301,39 @@ function C.go(place, quick)
     clock.run(function()
       clock.sleep(7)
       engine.drone("glide", p.glide or 10)
-      engine.tex("lag", 2.5)
-      engine.drone("lag", 2)
-      engine.fx("lag", 1.5)
+      -- da qui in poi le manopole rispondono subito
+      engine.tex("lag", 1.2)
+      engine.drone("lag", 0.8)
+      engine.fx("lag", 0.6)
     end)
   end
 end
 
+-- l'arrivo: lo stacco. Un colpo basso, l'accordo del luogo, e il suo canto dal principio
+function C.arrivo()
+  local p = C.prof
+  if not p then return end
+  start_section(1)
+  C.chord_i = 1
+  C.chord_root = C.sec.prog[1] - 1
+  C.chord = chord_from(C.chord_root, p.accordo)
+  set_drone_chord()
+  C.fade_in = max(C.fade_in, 0.85)
+  local sc = C.scala()
+  local t = p.tonica + (C.key_off or 0)
+  local r = C.chord_root
+  engine.note("kick", 40, 0.3, 1.6, 0, 0.15, 0, 0)
+  C.play("sub", t + deg2semi(r, sc) - 24 + ((t - 24 < 28) and 12 or 0), 0.26, 6, 0, 0.3, 0.01, 1)
+  for i, d in ipairs({ r, r + 2, r + 4 }) do
+    C.play("strings", t + deg2semi(d, sc) - (i == 1 and 12 or 0), 0.1, 5, (i - 2) * 0.45, 0.35, 0.08, 1)
+  end
+  C.play("piano", t + deg2semi(r, sc) - 12, 0.2, 5, 0, 0.3, 0.003, 1)
+  C.play("piano", t + deg2semi(r + 4, sc) - 12, 0.12, 5, 0.2, 0.3, 0.003, 1)
+end
+
 -- all'arrivo, a volte, il tema saluta
 function C.saluto()
-  if not C.prof or random() > 0.45 then return end
+  if not C.prof or random() > 0.45 or C.canto_line then return end
   local mel
   for _, l in ipairs(C.lines) do if l.ruolo == "melodia" and not l.extra then mel = l; break end end
   if not mel then return end
@@ -897,7 +1349,7 @@ end
 
 function C.evoca()
   -- evocare: gli archi si alzano, il tema arriva subito, poi il luogo
-  -- ricomincia a raccontare con un altro giro di accordi e altri motivi
+  -- salta al suo culmine, col canto in alto e la seconda voce sotto
   local p = C.prof
   if not p then return end
   C.bridge = 0.75
@@ -917,24 +1369,17 @@ function C.evoca()
     tt = tt + e[2]
   end
   C.later(tt + 2, function() mel.wait = 4 end)
-  local prog = {}
-  for i, v in ipairs(p.prog) do prog[i] = v end
-  for i = #prog, 3, -1 do
-    local j = random(2, i)
-    prog[i], prog[j] = prog[j], prog[i]
+  -- poi il culmine
+  local n = #C.form
+  local j = C.sec_i + 1
+  for k = 1, n do
+    if C.form[((C.sec_i + k - 1) % n) + 1] == "C" then j = C.sec_i + k; break end
   end
-  p.prog = prog
-  for i, l in ipairs(C.lines) do
-    if not l.extra and l ~= mel then
-      l.motif = gen_motif(l.lens)
-      l.phrase = nil
-      l.on = i <= 2 or random() < l.prob
-    end
-  end
-  C.chord_i = 1
-  C.chord_root = p.prog[1] - 1
-  C.chord = chord_from(C.chord_root, p.accordo)
-  set_drone_chord()
+  C.later(tt + 1, function()
+    start_section(j)
+    C.chord_i = 1; C.chord_root = C.sec.prog[1] - 1; C.chord = chord_from(C.chord_root, p.accordo); set_drone_chord()
+  end)
+  if C.canto_line then C.canto_line.hold = C.tick_n + tt + 1 end
 end
 
 function C.travel(on) C.travelling = on end
@@ -976,4 +1421,5 @@ function C.stop()
   if C.clock_id then clock.cancel(C.clock_id) end
 end
 
+_G.__anamnesi_C = C
 return C
