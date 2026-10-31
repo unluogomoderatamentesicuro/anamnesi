@@ -272,7 +272,7 @@ P.foto = {
 -------------------------------------------------------------------------------
 P.porta = {
   init = function(s)
-    s.fig = D.figura(20, 56, { s = 1.0, l = 1, dark = true, speed = 9 })
+    s.fig = D.figura(20, 56, { s = 1.0, l = 1, dark = true, sil = true, speed = 9 })
     s.fig:act({ { "walk", 60 }, { "pose", "arms_open", 4 } })
   end,
   update = function(s, dt)

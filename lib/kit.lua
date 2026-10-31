@@ -35,22 +35,24 @@ function K.room(o, t)
     D.glow(L.x, L.y, L.r, w + 1 + (L.l or 2) + fl)
   end
   local p = o.paper
+  -- la carta da parati è un'ombra appena, non una trama che accende il muro
+  local pl = math.min(w + 1, 3)
   if p == "righe" then
-    for x = 3, 127, 6 do D.line(x, ceil + 1, x, fy - 3, w + 0.6) end
+    for x = 3, 127, 6 do D.line(x, ceil + 1, x, fy - 3, pl) end
   elseif p == "puntini" then
-    for y = ceil + 3, fy - 4, 5 do for x = (y % 10 < 5) and 2 or 5, 127, 6 do D.px(x, y, w + 1) end end
+    for y = ceil + 3, fy - 4, 5 do for x = (y % 10 < 5) and 2 or 5, 127, 6 do D.px(x, y, pl) end end
   elseif p == "fiori" then
     for y = ceil + 4, fy - 5, 7 do
-      for x = (y % 14 < 7) and 3 or 7, 127, 8 do D.px(x, y, w + 1); D.px(x - 1, y + 1, w + 1); D.px(x + 1, y + 1, w + 1); D.px(x, y + 2, w + 1) end
+      for x = (y % 14 < 7) and 3 or 7, 127, 8 do D.px(x, y, pl); D.px(x - 1, y + 1, pl); D.px(x + 1, y + 1, pl); D.px(x, y + 2, pl) end
     end
   elseif p == "assi" then
-    for y = ceil + 4, fy - 2, 5 do D.line(0, y, 127, y, w - 1) end
-    for i = 0, 18 do D.px((i * 37) % 128, ceil + 2 + (i * 5) % (fy - ceil - 4), w + 1) end
+    for y = ceil + 4, fy - 2, 5 do D.line(0, y, 127, y, math.min(w - 1, 2.5)) end
+    for i = 0, 18 do D.px((i * 37) % 128, ceil + 2 + (i * 5) % (fy - ceil - 4), pl) end
   elseif p == "piastrelle" then
     local ty = o.tile_y or (fy - 22)
-    D.rect(0, ty, 128, fy - ty, w + 1)
-    for x = 0, 127, 6 do D.line(x, ty, x, fy - 1, w) end
-    for y = ty, fy - 1, 5 do D.line(0, y, 127, y, w) end
+    D.rect(0, ty, 128, fy - ty, pl)
+    for x = 0, 127, 6 do D.line(x, ty, x, fy - 1, pl - 0.5) end
+    for y = ty, fy - 1, 5 do D.line(0, y, 127, y, pl - 0.5) end
   end
   -- battiscopa
   D.rect(0, fy - 2, 128, 2, w + 1)

@@ -1,4 +1,4 @@
--- ANAMNESI v5
+-- ANAMNESI v6
 -- un viaggio nei ricordi
 -- veri e immaginati
 --
@@ -555,7 +555,23 @@ function redraw()
   elseif st.mode == "prologo" then Pr.draw()
   elseif st.mode == "viaggio" and st.travel.t >= FADE_OUT and st.travel.t < st.travel.ep1 then draw_interstitial()
   else
-    if st.scene and st.scene.draw then st.scene.draw(st.ss, st.stime) end
+    if st.scene and st.scene.draw then
+      -- la macchina da presa: all'arrivo scende o scorre sul luogo, alla partenza se ne va
+      local ox, oy = 0, 0
+      local since = st.t - (st.arrived or 0)
+      if since < 5 and st.mode ~= "prologo" then
+        local k = 1 - since / 5
+        k = k * k * (3 - 2 * k)
+        local mv = st.place and (#st.place.id % 3) or 0
+        if mv == 0 then oy = k * 16 elseif mv == 1 then ox = -k * 20 else ox = k * 20 end
+      end
+      if st.mode == "viaggio" and st.travel and st.travel.t < FADE_OUT then
+        local k = st.travel.t / FADE_OUT
+        oy = -k * k * 10
+      end
+      if S.H.cam then S.H.cam(ox, oy, function() st.scene.draw(st.ss, st.stime) end)
+      else st.scene.draw(st.ss, st.stime) end
+    end
     D.gain = 1
     if st.mode == "luogo" or st.mode == "viaggio" then draw_memory(); draw_overlays() end
   end

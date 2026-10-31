@@ -36,10 +36,10 @@ L.lista = {
   altro = { T("Ogni luce è un nome che qualcuno ha detto ad alta voce.", "Every light is a name someone once said out loud.") },
   macro = { "stelle", "respiro", "eco" },
   musica = { tonica = 50, modo = "lidio", bpm = 50, prog = { 1, 2, 1, 5 }, accordo = "add9", battute = 4, glide = 14, tema = 0.15,
-    drone = { amp = 0.42, cut = 1400, shape = 0.1, sub = 0.2, air = 0.35, breath = 0.45, detune = 0.15 },
-    linee = { l("scintille", "celesta", 2, 0.2, 0.8, { bright = 0.2, legato = 3 }), l("accordo", "strings", 0, 0.2, 0.6, { atk = 3 }),
-      l("melodia", "breath", 1, 0.28, 0.4, { legato = 2.2, riposo = 10 }), l("onde", "swell", 1, 0.25, 0.5) },
-    tex = { wind = 0.05 }, fx = { rev = 0.82, size = 0.95, shimmer = 0.5, tape = 0.05, hiss = 0.05 } } },
+    drone = { amp = 0.322, cut = 1400, shape = 0.1, sub = 0.2, air = 0.35, breath = 0.45, detune = 0.15 },
+    linee = { l("scintille", "celesta", 2, 0.153, 0.8, { bright = 0.2, legato = 3 }), l("accordo", "strings", 0, 0.153, 0.6, { atk = 3 }),
+      l("melodia", "breath", 1, 0.215, 0.4, { legato = 2.2, riposo = 10 }), l("onde", "swell", 1, 0.192, 0.5) },
+    tex = { wind = 0.038 }, fx = { rev = 0.82, size = 0.95, shimmer = 0.5, tape = 0.05, hiss = 0.05 } } },
 
 { id = "nuvole", strato = 3, x = 0.3, terreno = "nuvola", nome = T("Sopra le nuvole", "Above the clouds"),
   ora = T("Cammini sopra un mare bianco. Il sole è vicino, e non scotta.", "You walk on a white sea. The sun is close, and it doesn't burn."),
@@ -61,10 +61,10 @@ L.lista = {
   altro = { T("Qui tutto canta, anche quello che da laggiù sembrava solo rumore.", "Everything sings here, even what sounded like noise from down there.") },
   macro = { "luce", "coro", "stelle" },
   musica = { tonica = 52, modo = "ionio", bpm = 56, prog = { 1, 4, 6, 4 }, accordo = "add9", battute = 4, glide = 12, tema = 0.25,
-    drone = { amp = 0.45, cut = 1800, shape = 0.25, sub = 0.25, air = 0.4, breath = 0.35 },
-    linee = { l("accordo", "choir", 0, 0.26, 0.9, { atk = 2.5 }), l("melodia", "breath", 1, 0.3, 0.6, { legato = 1.8, riposo = 6 }),
-      l("arpeggio", "celesta", 1, 0.16, 0.35, { bright = 0.3, legato = 4 }), l("campane", "campana", 0, 0.45, 0.15) },
-    tex = { wind = 0.04 }, fx = { rev = 0.85, size = 0.96, shimmer = 0.7, tape = 0.04, hiss = 0.03 } } },
+    drone = { amp = 0.236, cut = 1800, shape = 0.25, sub = 0.25, air = 0.4, breath = 0.35 },
+    linee = { l("accordo", "choir", 0, 0.136, 0.9, { atk = 2.5 }), l("melodia", "breath", 1, 0.157, 0.6, { legato = 1.8, riposo = 6 }),
+      l("arpeggio", "celesta", 1, 0.084, 0.35, { bright = 0.3, legato = 4 }), l("campane", "campana", 0, 0.236, 0.15) },
+    tex = { wind = 0.021 }, fx = { rev = 0.85, size = 0.96, shimmer = 0.7, tape = 0.04, hiss = 0.03 } } },
 
 { id = "aurora", strato = 3, x = 0.7, terreno = "neve", nome = T("L'aurora boreale", "The northern lights"),
   ora = T("Il cielo si muove come una tenda davanti a una finestra aperta.", "The sky moves like a curtain in front of an open window."),
@@ -72,10 +72,10 @@ L.lista = {
   altro = { T("Sdraiato nella neve, non senti più il freddo.", "Lying in the snow, you no longer feel the cold.") },
   macro = { "stelle", "calore", "eco" }, macro_def = { 0.4, 0.3, 0.3 },
   musica = { tonica = 54, modo = "lidio", bpm = 46, prog = { 1, 2, 7, 1 }, accordo = "quarte", battute = 4, glide = 16, tema = 0.15,
-    drone = { amp = 0.4, cut = 1300, shape = 0.15, sub = 0.25, air = 0.4, breath = 0.5 },
-    linee = { l("accordo", "strings", 0, 0.22, 0.8, { atk = 4 }), l("melodia", "celesta", 1, 0.26, 0.5, { legato = 3, riposo = 10 }),
-      l("onde", "swell", 1, 0.22, 0.5) },
-    tex = { wind = 0.12 }, fx = { rev = 0.85, size = 0.96, shimmer = 0.45, echo = 0.2 } } },
+    drone = { amp = 0.303, cut = 1300, shape = 0.15, sub = 0.25, air = 0.4, breath = 0.5 },
+    linee = { l("accordo", "strings", 0, 0.167, 0.8, { atk = 4 }), l("melodia", "celesta", 1, 0.197, 0.5, { legato = 3, riposo = 10 }),
+      l("onde", "swell", 1, 0.167, 0.5) },
+    tex = { wind = 0.091 }, fx = { rev = 0.85, size = 0.96, shimmer = 0.45, echo = 0.2 } } },
 
 { id = "pace", strato = 3, x = 0.9, terreno = "erba", nome = T("La pace", "Peace"),
   ora = T("Non succede niente, e va tutto bene. Il respiro trova da solo il suo ritmo.",
@@ -135,10 +135,10 @@ L.lista = {
   altro = { T("La nebbia sale dall'acqua come un respiro.", "Mist rises off the water like a breath.") },
   macro = { "nebbia", "luce", "eco" },
   musica = { tonica = 52, modo = "lidio", bpm = 48, prog = { 1, 5, 2, 1 }, accordo = "add9", battute = 4, glide = 14,
-    drone = { amp = 0.38, cut = 1100, shape = 0.15, sub = 0.25, air = 0.3, breath = 0.5 },
-    linee = { l("melodia", "rhodes", 0, 0.28, 0.5, { legato = 3, bright = 0.3, riposo = 10 }), l("accordo", "strings", 0, 0.18, 0.6, { atk = 4 }),
-      l("onde", "swell", 0, 0.2, 0.4) },
-    tex = { stream = 0.1, wind = 0.1 }, fx = { rev = 0.8, size = 0.94, shimmer = 0.25, echo = 0.3, etime = 0.6 } } },
+    drone = { amp = 0.232, cut = 1100, shape = 0.15, sub = 0.25, air = 0.3, breath = 0.5 },
+    linee = { l("melodia", "rhodes", 0, 0.171, 0.5, { legato = 3, bright = 0.3, riposo = 10 }), l("accordo", "strings", 0, 0.11, 0.6, { atk = 4 }),
+      l("onde", "swell", 0, 0.122, 0.4) },
+    tex = { stream = 0.061, wind = 0.061 }, fx = { rev = 0.8, size = 0.94, shimmer = 0.25, echo = 0.3, etime = 0.6 } } },
 
 { id = "vetta", strato = 2, x = 0.52, terreno = "pietra", nome = T("La vetta", "The summit"),
   ora = T("In cima non c'è niente: una croce di ferro, il vento, e sotto le nuvole tutto il mondo che hai attraversato.",
@@ -148,10 +148,10 @@ L.lista = {
   altro = { T("Il vento porta via le parole prima che tu le dica.", "The wind takes the words away before you say them.") },
   macro = { "vento", "luce", "coro" },
   musica = { tonica = 45, modo = "lidio", bpm = 44, prog = { 1, 2, 5, 1 }, accordo = "quarte", battute = 4, glide = 14, tema = 0.2,
-    drone = { amp = 0.48, cut = 1500, shape = 0.35, sub = 0.35, air = 0.4, breath = 0.4 },
-    linee = { l("accordo", "strings", 0, 0.26, 0.7, { atk = 3 }), l("accordo", "choir", 1, 0.16, 0.5, { atk = 4, voci = 2 }),
-      l("melodia", "breath", 2, 0.24, 0.35, { legato = 2, riposo = 14 }) },
-    tex = { wind = 0.55 }, fx = { rev = 0.88, size = 0.97, shimmer = 0.5, tape = 0.05 } } },
+    drone = { amp = 0.246, cut = 1500, shape = 0.35, sub = 0.35, air = 0.4, breath = 0.4 },
+    linee = { l("accordo", "strings", 0, 0.133, 0.7, { atk = 3 }), l("accordo", "choir", 1, 0.082, 0.5, { atk = 4, voci = 2 }),
+      l("melodia", "breath", 2, 0.123, 0.35, { legato = 2, riposo = 14 }) },
+    tex = { wind = 0.282 }, fx = { rev = 0.88, size = 0.97, shimmer = 0.5, tape = 0.05 } } },
 
 { id = "campanile", strato = 2, x = 0.64, terreno = "pietra", nome = T("In cima al campanile", "Atop the bell tower"),
   ora = T("Il paese, da quassù, sta tutto in una mano. La campana ti passa accanto come un animale grande.",
@@ -199,10 +199,10 @@ L.lista = {
     T("Ogni tanto si alza, guarda fuori, torna a sedersi.", "Now and then he gets up, looks out, sits down again.") },
   macro = { "fuoco", "vento", "fragilita" },
   musica = { tonica = 57, modo = "dorico", bpm = 60, prog = { 1, 4, 1, 7 }, accordo = "settima", battute = 2, glide = 9, tema = 0.12,
-    drone = { amp = 0.36, cut = 800, shape = 0.4, sub = 0.3, air = 0.08, breath = 0.3 },
-    linee = { l("melodia", "piano", 0, 0.36, 0.7, { legato = 2.4, bright = 0.35 }), l("arpeggio", "pluck", -1, 0.22, 0.3, { bright = 0.3, legato = 3 }),
-      l("basso", "piano", -1, 0.28, 0.6, { bright = 0.2, legato = 1 }), l("risposta", "bowed", 0, 0.16, 0.4, { atk = 0.8 }) },
-    tex = { fire = 0.5, wind = 0.35, clock = 0.25 }, fx = { rev = 0.42, size = 0.7, shimmer = 0.05, tape = 0.22, age = 0.15 } } },
+    drone = { amp = 0.23, cut = 800, shape = 0.4, sub = 0.3, air = 0.08, breath = 0.3 },
+    linee = { l("melodia", "piano", 0, 0.23, 0.7, { legato = 2.4, bright = 0.35 }), l("arpeggio", "pluck", -1, 0.14, 0.3, { bright = 0.3, legato = 3 }),
+      l("basso", "piano", -1, 0.179, 0.6, { bright = 0.2, legato = 1 }), l("risposta", "bowed", 0, 0.102, 0.4, { atk = 0.8 }) },
+    tex = { fire = 0.319, wind = 0.223, clock = 0.16 }, fx = { rev = 0.42, size = 0.7, shimmer = 0.05, tape = 0.22, age = 0.15 } } },
 
 -------------------------------------------------------------------------------
 -- +1 · L'INFANZIA
@@ -329,10 +329,10 @@ L.lista = {
   altro = { T("In fondo ai binari, a volte, una luce. Poi niente.", "At the end of the tracks, sometimes, a light. Then nothing.") },
   macro = { "treno", "distanza", "lacrime" },
   musica = { tonica = 47, modo = "eolio", bpm = 62, prog = { 1, 6, 3, 7 }, accordo = "add9", battute = 2, glide = 10, tema = 0.15,
-    drone = { amp = 0.36, cut = 700, shape = 0.35, sub = 0.3, air = 0.1 },
-    linee = { l("melodia", "piano", 1, 0.34, 0.65, { legato = 2.4, bright = 0.3 }), l("accordo", "strings", 0, 0.16, 0.5, { atk = 2.5, voci = 2 }),
-      l("basso", "sub", -1, 0.3, 0.6) },
-    tex = { wind = 0.25, hum = 0.2, rumble = 0.1 }, fx = { rev = 0.68, size = 0.9, tape = 0.18, age = 0.12, dark = 0.1 } } },
+    drone = { amp = 0.207, cut = 700, shape = 0.35, sub = 0.3, air = 0.1 },
+    linee = { l("melodia", "piano", 1, 0.196, 0.65, { legato = 2.4, bright = 0.3 }), l("accordo", "strings", 0, 0.092, 0.5, { atk = 2.5, voci = 2 }),
+      l("basso", "sub", -1, 0.173, 0.6) },
+    tex = { wind = 0.144, hum = 0.115, rumble = 0.058 }, fx = { rev = 0.68, size = 0.9, tape = 0.18, age = 0.12, dark = 0.1 } } },
 
 { id = "domenica", strato = 0, x = 0.12, terreno = "pietra", nome = T("Domenica al paese", "Sunday in the village"),
   ora = T("Le campane a festa. La piazza si riempie di vestiti buoni.", "The bells ring out. The square fills with Sunday clothes."),
@@ -340,10 +340,10 @@ L.lista = {
   altro = { T("I piccioni si alzano tutti insieme, per niente.", "The pigeons rise all together, for nothing.") },
   macro = { "campane", "folla", "luce" }, macro_def = { 0.4, 0.4, 0.5 },
   musica = { tonica = 55, modo = "ionio", bpm = 70, prog = { 1, 5, 6, 4 }, accordo = "triade", battute = 2, glide = 8,
-    drone = { amp = 0.3, cut = 1300, shape = 0.3, sub = 0.2, air = 0.2 },
-    linee = { l("campane", "campana", 0, 0.65, 0.4), l("accordo", "choir", 0, 0.2, 0.6, { atk = 1.5 }),
-      l("melodia", "pluck", 1, 0.3, 0.5, { bright = 0.5, legato = 2 }), l("basso", "pluck", -1, 0.28, 0.4, { legato = 1 }) },
-    tex = { birds = 0.3, crowd = 0.15 }, fx = { rev = 0.52, size = 0.85, shimmer = 0.12, tape = 0.2, age = 0.25 } } },
+    drone = { amp = 0.233, cut = 1300, shape = 0.3, sub = 0.2, air = 0.2 },
+    linee = { l("campane", "campana", 0, 0.505, 0.4), l("accordo", "choir", 0, 0.155, 0.6, { atk = 1.5 }),
+      l("melodia", "pluck", 1, 0.233, 0.5, { bright = 0.5, legato = 2 }), l("basso", "pluck", -1, 0.217, 0.4, { legato = 1 }) },
+    tex = { birds = 0.233, crowd = 0.116 }, fx = { rev = 0.52, size = 0.85, shimmer = 0.12, tape = 0.2, age = 0.25 } } },
 
 { id = "chiesa", strato = 0, x = 0.21, terreno = "pietra", nome = T("La chiesa di notte", "The church at night"),
   ora = T("Le candele accese da persone che non ci sono più. Il silenzio qui ha un'eco.", "Candles lit by people who are no longer here. Silence has an echo in here."),
@@ -387,10 +387,10 @@ L.lista = {
     T("Puoi anche restare. Restare è un modo di andare.", "You may also stay. Staying is a way of going.") },
   macro = { "luce", "respiro", "fuoco" },
   musica = { tonica = 52, modo = "dorico", bpm = 60, prog = { 1, 4, 7, 1 }, accordo = "add9", battute = 4, glide = 10, tema = 0.3,
-    drone = { amp = 0.45, cut = 950, shape = 0.3, sub = 0.35, air = 0.18, breath = 0.35 },
-    linee = { l("melodia", "piano", 0, 0.32, 0.6, { legato = 2.6, bright = 0.3, riposo = 8 }), l("coppa", "coppa", 0, 0.28, 0.4),
-      l("onde", "swell", 0, 0.22, 0.4), l("accordo", "strings", 0, 0.14, 0.4, { atk = 3 }) },
-    tex = { fire = 0.3, wind = 0.15 }, fx = { rev = 0.62, size = 0.9, shimmer = 0.2, tape = 0.12, age = 0.06 } } },
+    drone = { amp = 0.291, cut = 950, shape = 0.3, sub = 0.35, air = 0.18, breath = 0.35 },
+    linee = { l("melodia", "piano", 0, 0.207, 0.6, { legato = 2.6, bright = 0.3, riposo = 8 }), l("coppa", "coppa", 0, 0.181, 0.4),
+      l("onde", "swell", 0, 0.142, 0.4), l("accordo", "strings", 0, 0.09, 0.4, { atk = 3 }) },
+    tex = { fire = 0.194, wind = 0.097 }, fx = { rev = 0.62, size = 0.9, shimmer = 0.2, tape = 0.12, age = 0.06 } } },
 
 { id = "parco", strato = 0, x = 0.58, terreno = "ghiaia", nome = T("Il parco giochi", "The playground"),
   ora = T("Le giostre di ferro verniciato, scrostate. L'altalena cigola da sola.", "Painted iron rides, peeling. The swing creaks by itself."),
@@ -602,10 +602,10 @@ L.lista = {
   altro = { T("Il monitor conta per tutti, anche per te.", "The monitor counts for everyone, you included.") },
   macro = { "battito", "distanza", "silenzio" },
   musica = { tonica = 47, modo = "eolio", bpm = 58, prog = { 1, 7, 6, 7 }, accordo = "sus2", battute = 4, glide = 12,
-    drone = { amp = 0.34, cut = 650, shape = 0.4, sub = 0.25, air = 0.05 },
-    linee = { l("pulsazione", "bell", 2, 0.12, 0.14, { bright = 0, legato = 0.4 }), l("accordo", "strings", 0, 0.18, 0.6, { atk = 3 }),
-      l("melodia", "piano", 0, 0.26, 0.4, { legato = 2.5, bright = 0.2, riposo = 10 }) },
-    tex = { hum = 0.42 }, fx = { rev = 0.55, size = 0.8, tape = 0.08, age = 0.1, dark = 0.15 } } },
+    drone = { amp = 0.252, cut = 650, shape = 0.4, sub = 0.25, air = 0.05 },
+    linee = { l("pulsazione", "bell", 2, 0.089, 0.14, { bright = 0, legato = 0.4 }), l("accordo", "strings", 0, 0.133, 0.6, { atk = 3 }),
+      l("melodia", "piano", 0, 0.193, 0.4, { legato = 2.5, bright = 0.2, riposo = 10 }) },
+    tex = { hum = 0.311 }, fx = { rev = 0.55, size = 0.8, tape = 0.08, age = 0.1, dark = 0.15 } } },
 
 -------------------------------------------------------------------------------
 -- -2 · LA MENTE
@@ -664,10 +664,10 @@ L.lista = {
   altro = { T("Le nuvole corrono davanti alla luna come se scappassero.", "The clouds race across the moon as if fleeing.") },
   macro = { "nevrosi", "battito", "tempo" },
   musica = { tonica = 54, modo = "locrio", bpm = 104, prog = { 1, 2, 5, 1 }, accordo = "grappolo", battute = 1, glide = 3,
-    drone = { amp = 0.34, cut = 900, shape = 0.75, sub = 0.4, air = 0.1, detune = 0.5, wob = 0.5 },
-    linee = { l("pulsazione", "pluck", -1, 0.3, 0.45, { bright = 0.4, legato = 0.5 }), l("schegge", "glitch", 1, 0.2, 0.5),
-      l("melodia", "bowed", 0, 0.22, 0.4, { atk = 0.3, legato = 1 }), l("basso", "sub", -1, 0.32, 0.8) },
-    tex = { heart = 0.55, voices = 0.18, wind = 0.15 }, fx = { rev = 0.42, size = 0.7, tape = 0.35, crush = 0.12, age = 0.2 },
+    drone = { amp = 0.172, cut = 900, shape = 0.75, sub = 0.4, air = 0.1, detune = 0.5, wob = 0.5 },
+    linee = { l("pulsazione", "pluck", -1, 0.152, 0.45, { bright = 0.4, legato = 0.5 }), l("schegge", "glitch", 1, 0.101, 0.5),
+      l("melodia", "bowed", 0, 0.112, 0.4, { atk = 0.3, legato = 1 }), l("basso", "sub", -1, 0.162, 0.8) },
+    tex = { heart = 0.279, voices = 0.091, wind = 0.076 }, fx = { rev = 0.42, size = 0.7, tape = 0.35, crush = 0.12, age = 0.2 },
     speciale = { hrate = 1.9 } } },
 
 { id = "tre_notte", strato = -2, x = 0.55, terreno = "legno", nome = T("Le tre di notte", "Three in the morning"),
@@ -710,10 +710,10 @@ L.lista = {
   altro = { T("La rabbia non riporta indietro nessuno. Ma per un momento scalda.", "Anger brings no one back. But for a moment it keeps you warm.") },
   macro = { "nevrosi", "vento", "pioggia" }, macro_def = { 0.3, 0.5, 0.5 },
   musica = { tonica = 50, modo = "frigio", bpm = 96, prog = { 1, 2, 7, 1 }, accordo = "grappolo", battute = 2, glide = 5,
-    drone = { amp = 0.4, cut = 800, shape = 0.8, sub = 0.45, detune = 0.5 },
-    linee = { l("pulsazione", "strings", 0, 0.22, 0.4, { atk = 0.05, legato = 0.6 }), l("basso", "sub", -1, 0.34, 0.8),
-      l("schegge", "glitch", 1, 0.18, 0.4), l("melodia", "bowed", 0, 0.24, 0.4, { atk = 0.2 }) },
-    tex = { storm = 0.55, wind = 0.4 }, fx = { rev = 0.5, size = 0.8, tape = 0.25, crush = 0.08 } } },
+    drone = { amp = 0.152, cut = 800, shape = 0.8, sub = 0.45, detune = 0.5 },
+    linee = { l("pulsazione", "strings", 0, 0.084, 0.4, { atk = 0.05, legato = 0.6 }), l("basso", "sub", -1, 0.129, 0.8),
+      l("schegge", "glitch", 1, 0.069, 0.4), l("melodia", "bowed", 0, 0.091, 0.4, { atk = 0.2 }) },
+    tex = { storm = 0.209, wind = 0.152 }, fx = { rev = 0.5, size = 0.8, tape = 0.25, crush = 0.08 } } },
 
 { id = "pavimento", strato = -2, x = 0.95, terreno = "marmo", nome = T("Il pavimento gelido", "The cold floor"),
   ora = T("Ti sei steso per terra. Il pavimento è gelido contro la guancia. Non pensi più a niente. Va bene così.",
@@ -723,9 +723,9 @@ L.lista = {
   altro = { T("La luce della finestra si sposta sul pavimento. È l'unica cosa che si muove.", "The window light moves across the floor. It's the only thing that moves.") },
   macro = { "silenzio", "calore", "luce" }, macro_def = { 0.2, 0.25, 0.4 },
   musica = { tonica = 52, modo = "eolio", bpm = 40, prog = { 1, 1, 6, 1 }, accordo = "aperto", battute = 4, glide = 18, pedale = true,
-    drone = { amp = 0.34, cut = 520, shape = 0.15, sub = 0.3, air = 0.05, breath = 0.6 },
-    linee = { l("melodia", "piano", 0, 0.26, 0.3, { legato = 4, bright = 0.15, riposo = 16 }), l("onde", "swell", 0, 0.2, 0.3) },
-    tex = { hum = 0.08, rumble = 0.15 }, fx = { rev = 0.82, size = 0.95, tape = 0.1, age = 0.12, dark = 0.4 } } },
+    drone = { amp = 0.23, cut = 520, shape = 0.15, sub = 0.3, air = 0.05, breath = 0.6 },
+    linee = { l("melodia", "piano", 0, 0.176, 0.3, { legato = 4, bright = 0.15, riposo = 16 }), l("onde", "swell", 0, 0.135, 0.3) },
+    tex = { hum = 0.054, rumble = 0.101 }, fx = { rev = 0.82, size = 0.95, tape = 0.1, age = 0.12, dark = 0.4 } } },
 
 -------------------------------------------------------------------------------
 -- -3 · L'ABISSO
@@ -747,10 +747,10 @@ L.lista = {
   altro = { T("Le parole galleggiano un poco, poi vanno giù.", "The words float for a moment, then sink.") },
   macro = { "nebbia", "profondita", "fragilita" },
   musica = { tonica = 45, modo = "eolio", bpm = 44, prog = { 1, 7, 6, 7 }, accordo = "aperto", battute = 4, glide = 16,
-    drone = { amp = 0.4, cut = 520, shape = 0.2, sub = 0.4, air = 0.05, breath = 0.5 },
-    linee = { l("onde", "swell", 0, 0.3, 0.7), l("melodia", "piano", 1, 0.24, 0.4, { legato = 3, bright = 0.15, riposo = 10 }),
-      l("accordo", "bowed", -1, 0.18, 0.4, { atk = 4, voci = 2 }) },
-    tex = { stream = 0.4, rumble = 0.15 }, fx = { rev = 0.85, size = 0.95, tape = 0.3, age = 0.2, dark = 0.45 },
+    drone = { amp = 0.217, cut = 520, shape = 0.2, sub = 0.4, air = 0.05, breath = 0.5 },
+    linee = { l("onde", "swell", 0, 0.163, 0.7), l("melodia", "piano", 1, 0.13, 0.4, { legato = 3, bright = 0.15, riposo = 10 }),
+      l("accordo", "bowed", -1, 0.098, 0.4, { atk = 4, voci = 2 }) },
+    tex = { stream = 0.217, rumble = 0.081 }, fx = { rev = 0.85, size = 0.95, tape = 0.3, age = 0.2, dark = 0.45 },
     speciale = { oblio = 0.3 } } },
 
 { id = "metro", strato = -3, x = 0.35, terreno = "metallo", nome = T("La metropolitana chiusa", "The closed subway"),
@@ -759,9 +759,9 @@ L.lista = {
   altro = { T("Le piastrelle bianche ricordano tutti i passi.", "The white tiles remember every footstep.") },
   macro = { "treno", "eco", "nevrosi" },
   musica = { tonica = 53, modo = "locrio", bpm = 70, prog = { 1, 2, 1, 5 }, accordo = "add9", battute = 2, glide = 8,
-    drone = { amp = 0.34, cut = 700, shape = 0.5, sub = 0.35, detune = 0.3 },
-    linee = { l("melodia", "rhodes", 0, 0.26, 0.5, { legato = 2 }), l("pulsazione", "sub", -1, 0.24, 0.3, { legato = 0.6 }), l("schegge", "glitch", 1, 0.12, 0.3) },
-    tex = { train = 0.15, hum = 0.3, drip = 0.12 }, fx = { rev = 0.7, size = 0.88, tape = 0.2, echo = 0.25, etime = 0.7 } } },
+    drone = { amp = 0.261, cut = 700, shape = 0.5, sub = 0.35, detune = 0.3 },
+    linee = { l("melodia", "rhodes", 0, 0.2, 0.5, { legato = 2 }), l("pulsazione", "sub", -1, 0.184, 0.3, { legato = 0.6 }), l("schegge", "glitch", 1, 0.092, 0.3) },
+    tex = { train = 0.115, hum = 0.23, drip = 0.092 }, fx = { rev = 0.7, size = 0.88, tape = 0.2, echo = 0.25, etime = 0.7 } } },
 
 { id = "sommerso", strato = -3, x = 0.5, terreno = "acqua", nome = T("Il mondo sommerso", "The drowned world"),
   ora = T("Sotto l'acqua c'è un paese intero: le case, la piazza, il campanile. Nessuno è andato via. Hanno solo smesso di parlare.",
@@ -770,10 +770,10 @@ L.lista = {
   altro = { T("La luce arriva tardi, quaggiù, e arriva già stanca.", "Light arrives late down here, and already tired.") },
   macro = { "profondita", "campane", "eco" },
   musica = { tonica = 48, modo = "esatonale", bpm = 40, prog = { 1, 2, 1, 4 }, accordo = "triade", battute = 4, glide = 16,
-    drone = { amp = 0.38, cut = 600, shape = 0.1, sub = 0.4, air = 0.04, breath = 0.6, wob = 0.3 },
-    linee = { l("campane", "campana", 0, 0.42, 0.25, { bright = 0.1 }), l("melodia", "bell", 0, 0.22, 0.4, { bright = 0.1, legato = 4, riposo = 10 }),
-      l("accordo", "choir", -1, 0.2, 0.4, { atk = 5, voci = 2 }) },
-    tex = { bubble = 0.5, rumble = 0.25 }, fx = { rev = 0.9, size = 0.97, tape = 0.25, age = 0.1, dark = 0.72 } } },
+    drone = { amp = 0.18, cut = 600, shape = 0.1, sub = 0.4, air = 0.04, breath = 0.6, wob = 0.3 },
+    linee = { l("campane", "campana", 0, 0.199, 0.25, { bright = 0.1 }), l("melodia", "bell", 0, 0.104, 0.4, { bright = 0.1, legato = 4, riposo = 10 }),
+      l("accordo", "choir", -1, 0.095, 0.4, { atk = 5, voci = 2 }) },
+    tex = { bubble = 0.237, rumble = 0.118 }, fx = { rev = 0.9, size = 0.97, tape = 0.25, age = 0.1, dark = 0.72 } } },
 
 { id = "pianto", strato = -3, x = 0.65, terreno = "acqua", nome = T("Piangere", "Crying"),
   ora = T("Piove, e non si capisce più cosa sia pioggia e cosa no. Ti siedi in mezzo alla strada e lasci fare.",
@@ -795,9 +795,9 @@ L.lista = {
   altro = { T("La sedia è rimasta dov'era.", "The chair is still where it was.") },
   macro = { "silenzio", "lacrime", "eco" },
   musica = { tonica = 50, modo = "eolio", bpm = 36, prog = { 1, 6, 1, 4 }, accordo = "aperto", battute = 4, glide = 20, pedale = true,
-    drone = { amp = 0.32, cut = 600, shape = 0.0, sub = 0.25, air = 0.1, breath = 0.7 },
-    linee = { l("onde", "swell", 0, 0.24, 0.5), l("melodia", "piano", 1, 0.2, 0.2, { legato = 4, bright = 0.1, riposo = 20 }) },
-    tex = { wind = 0.04 }, fx = { rev = 0.95, size = 0.98, shimmer = 0.08, tape = 0.1, hiss = 0.2 } } },
+    drone = { amp = 0.227, cut = 600, shape = 0.0, sub = 0.25, air = 0.1, breath = 0.7 },
+    linee = { l("onde", "swell", 0, 0.17, 0.5), l("melodia", "piano", 1, 0.142, 0.2, { legato = 4, bright = 0.1, riposo = 20 }) },
+    tex = { wind = 0.028 }, fx = { rev = 0.95, size = 0.98, shimmer = 0.08, tape = 0.1, hiss = 0.2 } } },
 
 { id = "grembo", strato = -3, x = 0.95, terreno = "vuoto", uscite = { su = "alba", sx = "vuoto" }, nome = T("Prima di nascere", "Before being born"),
   ora = T("Caldo, buio, un cuore che batte vicinissimo. Non sai ancora niente, e va bene così.", "Warm, dark, a heart beating very close. You know nothing yet, and that's fine."),
@@ -805,9 +805,9 @@ L.lista = {
   altro = { T("Da qui si può solo salire.", "From here, the only way is up.") },
   macro = { "battito", "calore", "respiro" }, macro_def = { 0.5, 0.7, 0.4 },
   musica = { tonica = 48, modo = "penta", bpm = 40, prog = { 1, 1, 4, 1 }, accordo = "aperto", battute = 4, glide = 18, pedale = true, tema = 0.3,
-    drone = { amp = 0.36, cut = 600, shape = 0.05, sub = 0.4, breath = 0.7 },
-    linee = { l("melodia", "hum", 0, 0.26, 0.6, { legato = 2 }), l("onde", "swell", 0, 0.2, 0.4), l("pulsazione", "sub", -1, 0.16, 0.12, { legato = 0.8 }) },
-    tex = { heart = 0.5, bubble = 0.08 }, fx = { rev = 0.7, size = 0.9, dark = 0.55, tape = 0.1 }, speciale = { hrate = 1.0 } } },
+    drone = { amp = 0.241, cut = 600, shape = 0.05, sub = 0.4, breath = 0.7 },
+    linee = { l("melodia", "hum", 0, 0.174, 0.6, { legato = 2 }), l("onde", "swell", 0, 0.134, 0.4), l("pulsazione", "sub", -1, 0.107, 0.12, { legato = 0.8 }) },
+    tex = { heart = 0.334, bubble = 0.053 }, fx = { rev = 0.7, size = 0.9, dark = 0.55, tape = 0.1 }, speciale = { hrate = 1.0 } } },
 
 -------------------------------------------------------------------------------
 -- I LUOGHI NASCOSTI (si aprono solo se resti abbastanza)
@@ -819,9 +819,9 @@ L.lista = {
   altro = { T("Le città di notte sembrano costellazioni capovolte.", "Cities at night look like upside-down constellations.") },
   macro = { "luce", "coro", "silenzio" },
   musica = { tonica = 48, modo = "ionio", bpm = 40, prog = { 1, 4, 1, 5 }, accordo = "aperto", battute = 4, glide = 18, tema = 0.35,
-    drone = { amp = 0.42, cut = 1600, shape = 0.2, sub = 0.3, air = 0.4, breath = 0.4 },
-    linee = { l("accordo", "organ", 0, 0.2, 0.7, { atk = 2 }), l("accordo", "choir", 1, 0.18, 0.6, { atk = 4 }), l("melodia", "strings", 1, 0.2, 0.5, { atk = 1, legato = 1.5 }) },
-    tex = { wind = 0.08 }, fx = { rev = 0.9, size = 0.98, shimmer = 0.6 } } },
+    drone = { amp = 0.304, cut = 1600, shape = 0.2, sub = 0.3, air = 0.4, breath = 0.4 },
+    linee = { l("accordo", "organ", 0, 0.145, 0.7, { atk = 2 }), l("accordo", "choir", 1, 0.13, 0.6, { atk = 4 }), l("melodia", "strings", 1, 0.145, 0.5, { atk = 1, legato = 1.5 }) },
+    tex = { wind = 0.058 }, fx = { rev = 0.9, size = 0.98, shimmer = 0.6 } } },
 
 { id = "neve", strato = 2, x = 1.1, terreno = "neve", segreto = { da = { "baita" }, dopo = 150 }, uscite = { giu = "baita", su = "pace" },
   nome = T("La prima neve", "The first snow"),
@@ -895,6 +895,29 @@ L.lista = {
 for _, p in ipairs(include("lib/luoghi_nuovi")(T, l)) do table.insert(L.lista, p) end
 for _, p in ipairs(include("lib/luoghi_nuovi2")(T, l)) do table.insert(L.lista, p) end
 for _, p in ipairs(include("lib/luoghi_nuovi3")(T, l)) do table.insert(L.lista, p) end
+for _, p in ipairs(include("lib/luoghi_nuovi4")(T, l)) do table.insert(L.lista, p) end
+
+-- v6: i nuovi motori entrano anche nei luoghi di prima.
+-- In cielo una nuvola di grani, nelle alture il vetro dell'FM,
+-- nella mente e nell'abisso il metallo graffiato; e dove si soffre,
+-- una manopola col tormento.
+local TORM = { voci = 3, incubo = 3, rabbia = 3, pavimento = 3, tre_notte = 3, colpa = 3, manicomio = 3,
+  fabbrica = 2, metro = 3, palude = 3, fuga = 3, giudizio = 3, buio = 3, ospedale_abb = 2, reparto = 2,
+  manicomio_abb = 2, specchio = 3, occasioni = 3 }
+for i, p in ipairs(L.lista) do
+  if TORM[p.id] and p.macro then
+    local has = false
+    for _, m in ipairs(p.macro) do if m == "tormento" then has = true end end
+    if not has then p.macro[TORM[p.id]] = "tormento" end
+  end
+  local m = p.musica
+  if m and m.linee and not m.no_extra then
+    if p.strato == 3 and i % 2 == 0 then m.linee[#m.linee + 1] = l("onde", "grain", 1, 0.1, 0.4, { legato = 2.5 }) end
+    if p.strato == 2 and i % 3 == 0 then m.linee[#m.linee + 1] = l("scintille", "fm", 1, 0.08, 0.3, { bright = 0.3 }) end
+    if p.strato <= -2 and i % 2 == 1 then m.linee[#m.linee + 1] = l("schegge", "scrape", 0, 0.08, 0.2, { bright = 0.4 }) end
+    if p.strato == 0 and m.tex and (m.tex.crick or m.tex.city) and i % 3 == 1 then m.linee[#m.linee + 1] = l("accordo", "saw", 0, 0.08, 0.3, { atk = 2.5 }) end
+  end
+end
 
 -------------------------------------------------------------------------------
 -- ALTROVE: ogni volta un luogo nuovo, con un nome e una musica nuovi

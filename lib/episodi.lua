@@ -391,7 +391,7 @@ EP.corridoio = {
         D.poly({ 128, 44, 128, 64, hx + 10, 42, hx + 6, 34 }, 2)
         D.circle(hx + 3, 36, 3, 8)
         D.rect(hx, 34, 4, 2, 9)
-        if s.o > 0.6 then D.rect(0, 0, 128, 64, (s.o - 0.6) * 30) end
+        if s.o > 0.6 then D.flash((s.o - 0.6) * 30) end
       end },
   },
 }
@@ -853,7 +853,7 @@ EP.finestra = {
         s.a = D.figura(48, 50, { s = 1.6, l = 4, pose = "sit", face = 1 })
         s.b = D.figura(80, 50, { s = 1.55, l = 4, pose = "sit", face = -1, bun = true })
         s.a:act({ { "wait", 2 }, { "pose", "talk", 2 }, { "pose", "sit", 9 } })
-        s.f = D.figura(118, 78, { s = 3.4, l = 0, dark = true, pose = "window", face = -1 })
+        s.f = D.figura(118, 78, { s = 3.4, l = 0, dark = true, sil = true, pose = "window", face = -1 })
       end,
       update = function(s, dt) s.a:update(dt); s.b:update(dt); s.f:update(dt) end,
       draw = function(s, t, c)

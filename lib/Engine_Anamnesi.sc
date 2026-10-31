@@ -164,6 +164,30 @@ Engine_Anamnesi : CroneEngine {
 				var ghost = (SinOsc.ar(note * [1, 1.5]) * [0.6, 0.3]).sum.tanh * LFNoise2.kr(0.4).range(0.2, 1);
 				var stat = BPF.ar(WhiteNoise.ar, 1800, 1.5) * LFNoise2.kr(0.3).range(0.02, 0.12);
 				(BPF.ar(ghost * 0.12 + stat, 1100, 1.2) + (Dust2.ar(6) * 0.1)) ! 2 },
+			// LA SOFFERENZA: rumori che fanno male, ma senza saturare
+			noise: {
+				var swell = LFNoise2.kr(0.13 ! 2).range(0.35, 1);
+				var band = LFNoise2.kr([0.07, 0.09]).exprange(300, 3800);
+				var n = BPF.ar(WhiteNoise.ar(1 ! 2), band, LFNoise2.kr(0.1).range(0.3, 1.2)) * 1.4;
+				var grit = (LPF.ar(BrownNoise.ar(1 ! 2), 500) * 0.6 + n).softclip;
+				LeakDC.ar(grit * swell * 0.28) },
+			tinnitus: {
+				var f = [6900, 7020] * LFNoise2.kr(0.05).range(0.98, 1.02);
+				(SinOsc.ar(f) * LFNoise2.kr(0.2 ! 2).range(0.3, 1) * 0.018)
+				+ (SinOsc.ar([3480, 3510]) * 0.006) },
+			static: {
+				var bursts = LFNoise0.kr([5, 6.5]).range(0, 1).squared;
+				var crack = Dust2.ar([40, 55]) * Decay.kr(Dust.kr([0.7, 0.9]), 1.5);
+				(HPF.ar(WhiteNoise.ar(1 ! 2), 1500) * bursts * 0.08) + (crack * 0.35) },
+			machine: {
+				var t = Dust.kr([0.6, 0.45]);
+				var clank = Ringz.ar(T2A.ar(t), TExpRand.kr(180, 900, t) * [1, 1.37], 0.35).sum * 0.06;
+				var hum = (Saw.ar([49, 50.2]) * 0.05 + SinOsc.ar([98, 99.5]) * 0.04);
+				LPF.ar(hum, 700) + (clank ! 2) + (LPF.ar(BrownNoise.ar(1 ! 2), 120) * 0.25) },
+			shriek: {
+				var f = LFNoise2.kr(0.3 ! 2).exprange(1200, 2600);
+				var fb = SinOsc.ar(f + (SinOsc.ar(f * 0.501) * f * LFNoise2.kr(0.2).range(0.2, 1.4)));
+				BPF.ar(fb, f, 0.4) * LFNoise2.kr(0.25 ! 2).range(0, 1).squared * 0.07 },
 			arcade: {
 				var t = Dust.kr(2.5);
 				var b = Pulse.ar(TExpRand.kr(200, 1600, t).round(55), 0.5) * Decay2.kr(t, 0.001, 0.09);
@@ -418,6 +442,59 @@ Engine_Anamnesi : CroneEngine {
 			sig = Latch.ar(SinOsc.ar(freq * LFNoise0.kr(25).exprange(0.5, 2)) + (PinkNoise.ar * bright * 0.6), Impulse.ar(sr));
 			sig = sig * LFPulse.kr(LFNoise0.kr(6).exprange(8, 40), 0, 0.5);
 			Out.ar(out, Pan2.ar(sig * env * amp * 0.25, pan));
+		}).add;
+
+		// FM a due operatori: campane di vetro, metalli lontani
+		SynthDef(\an_fm, {
+			arg out = 0, freq = 440, amp = 0.2, dur = 3, pan = 0, bright = 0.5, atk = 0.005, det = 0;
+			var env, ix, mod, sig;
+			env = EnvGen.ar(Env.new([0, 1, 0.3, 0], [atk, dur * 0.3, dur * 0.7], [-2, -3, -4]), doneAction: 2);
+			ix = EnvGen.ar(Env.perc(0.002, dur * 0.6)) * (1 + (bright * 5));
+			mod = SinOsc.ar(freq * 3.501 * (1 + (det * 0.003))) * freq * ix;
+			sig = SinOsc.ar(freq + mod) + (SinOsc.ar(freq * 0.5) * 0.25);
+			Out.ar(out, Pan2.ar(LPF.ar(sig, 9000) * env * amp * 0.35, pan));
+		}).add;
+
+		// nuvola di grani: una nota che si sbriciola in polvere luminosa
+		SynthDef(\an_grain, {
+			arg out = 0, freq = 440, amp = 0.2, dur = 4, pan = 0, bright = 0.5, atk = 0.5, det = 0;
+			var env, trig, sig;
+			env = EnvGen.ar(Env.new([0, 1, 0], [atk, dur], [2, -3]), doneAction: 2);
+			trig = Dust.kr(18 + (bright * 30));
+			sig = GrainSin.ar(2, trig, TRand.kr(0.04, 0.16, trig), freq * TChoose.kr(trig, [1, 1, 2, 0.5, 1.5]) * (1 + TRand.kr(-0.004, 0.004, trig)),
+				TRand.kr(-0.8, 0.8, trig) + pan);
+			Out.ar(out, sig * env * amp * 0.3);
+		}).add;
+
+		// metallo graffiato: un arco su una lamiera, la cosa che stride
+		SynthDef(\an_scrape, {
+			arg out = 0, freq = 220, amp = 0.2, dur = 3, pan = 0, bright = 0.5, atk = 0.3, det = 0;
+			var env, exc, sig;
+			env = EnvGen.ar(Env.new([0, 1, 0.7, 0], [atk, dur * 0.5, dur * 0.5], [1, 0, -3]), doneAction: 2);
+			exc = BPF.ar(PinkNoise.ar, freq * 4, 0.5) * LFNoise1.kr(18).range(0.2, 1);
+			sig = DynKlank.ar(`[[1, 2.31, 3.89, 5.17, 6.72] * freq, [1, 0.6, 0.45, 0.3, 0.2], [0.6, 0.5, 0.4, 0.3, 0.2]], exc);
+			sig = (sig * (2 + (bright * 3))).tanh * 0.5;
+			Out.ar(out, Pan2.ar(LeakDC.ar(sig) * env * amp * 0.3, pan));
+		}).add;
+
+		// pad di seghe stonate, come un vecchio sintetizzatore polifonico
+		SynthDef(\an_saw, {
+			arg out = 0, freq = 220, amp = 0.2, dur = 4, pan = 0, bright = 0.5, atk = 1, det = 0;
+			var env, sig;
+			env = EnvGen.ar(Env.new([0, 1, 0.8, 0], [atk, dur, atk * 1.5], [1, 0, -2]), doneAction: 2);
+			sig = Mix(Saw.ar(freq * [1, 1.004 + (det * 0.003), 0.996, 0.5005])) * 0.25;
+			sig = RLPF.ar(sig, (freq * (2 + (bright * 6))).clip(80, 9000) * LFNoise2.kr(0.3).range(0.8, 1.2), 0.5);
+			Out.ar(out, Pan2.ar(sig * env * amp * 0.5, pan + (SinOsc.kr(0.13) * 0.2)));
+		}).add;
+
+		// grappolo dissonante: sette note strette che battono tra loro
+		SynthDef(\an_cluster, {
+			arg out = 0, freq = 220, amp = 0.2, dur = 4, pan = 0, bright = 0.5, atk = 0.8, det = 0;
+			var env, sig;
+			env = EnvGen.ar(Env.new([0, 1, 0.9, 0], [atk, dur, 2], [2, 0, -3]), doneAction: 2);
+			sig = Mix(SinOsc.ar(freq * [1, 1.059, 1.122, 0.944, 1.189, 0.891, 2.12], 0, [1, 0.8, 0.6, 0.6, 0.4, 0.4, 0.2]));
+			sig = sig + (LPF.ar(Saw.ar(freq * [0.5, 0.53]).sum, freq * 2) * 0.3 * bright);
+			Out.ar(out, Pan2.ar(sig * env * amp * 0.12, pan));
 		}).add;
 
 		// sussurro

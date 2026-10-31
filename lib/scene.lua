@@ -26,7 +26,7 @@ S.H = H
 
 for _, f in ipairs({ "lib/scene_cielo", "lib/scene_infanzia", "lib/scene_paese", "lib/scene_case", "lib/scene_abisso",
   "lib/scene_ricordi_a", "lib/scene_ricordi_b", "lib/scene_ricordi_c", "lib/scene_ricordi_d",
-  "lib/scene_ricordi_e", "lib/scene_ricordi_f" }) do
+  "lib/scene_ricordi_e", "lib/scene_ricordi_f", "lib/scene_ricordi_g", "lib/scene_ricordi_h" }) do
   include(f)(S, D, K, H)
 end
 

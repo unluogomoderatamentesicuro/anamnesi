@@ -65,10 +65,10 @@ return {
   altro = { T("Una voce dice il tuo nome come lo diceva la nonna.", "A voice says your name the way grandma used to.") },
   macro = { "luce", "coro", "voci" }, macro_def = { 0.8, 0.4, 0.2 },
   musica = { tonica = 50, modo = "lidio", bpm = 42, prog = { 1, 2, 5, 1 }, accordo = "aperto", battute = 8, glide = 20, tema = 0.3,
-    drone = { amp = 0.4, cut = 2000, shape = 0.05, sub = 0.2, air = 0.6, breath = 0.5 },
-    linee = { l("accordo", "choir", 0, 0.2, 0.8, { atk = 4 }), l("melodia", "celesta", 1, 0.18, 0.5, { legato = 3 }),
-      l("onde", "strings", 0, 0.14, 0.6), l("scintille", "bell", 2, 0.06, 0.3, { bright = 0.05 }) },
-    tex = { wind = 0.04, voices = 0.04 }, fx = { rev = 0.95, size = 0.99, shimmer = 0.75 } } },
+    drone = { amp = 0.264, cut = 2000, shape = 0.05, sub = 0.2, air = 0.6, breath = 0.5 },
+    linee = { l("accordo", "choir", 0, 0.132, 0.8, { atk = 4 }), l("melodia", "celesta", 1, 0.119, 0.5, { legato = 3 }),
+      l("onde", "strings", 0, 0.092, 0.6), l("scintille", "bell", 2, 0.04, 0.3, { bright = 0.05 }) },
+    tex = { wind = 0.026, voices = 0.026 }, fx = { rev = 0.95, size = 0.99, shimmer = 0.75 } } },
 
 -------------------------------------------------------------------------------
 -- +2 · LE ALTURE
@@ -104,10 +104,10 @@ return {
   altro = { T("Una finestra si accende, sotto i tuoi piedi.", "A window lights up, beneath your feet.") },
   macro = { "eco", "tempo", "infanzia" }, macro_def = { 0.4, 0.5, 0.4 },
   musica = { tonica = 54, modo = "lidio", bpm = 70, prog = { 1, 2, 7, 1 }, accordo = "quarte", battute = 2, glide = 10, tema = 0.2,
-    drone = { amp = 0.28, cut = 1200, shape = 0.25, sub = 0.2, air = 0.3, breath = 0.3, detune = 0.2 },
-    linee = { l("arpeggio", "musicbox", 1, 0.16, 0.7), l("melodia", "celesta", 1, 0.2, 0.5, { legato = 2 }),
-      l("risposta", "rhodes", 0, 0.16, 0.4), l("onde", "swell", 0, 0.1, 0.4) },
-    tex = { city = 0.1, wind = 0.1 }, fx = { rev = 0.7, size = 0.9, shimmer = 0.35, echo = 0.3, etime = 0.4 } } },
+    drone = { amp = 0.297, cut = 1200, shape = 0.25, sub = 0.2, air = 0.3, breath = 0.3, detune = 0.2 },
+    linee = { l("arpeggio", "musicbox", 1, 0.17, 0.7), l("melodia", "celesta", 1, 0.212, 0.5, { legato = 2 }),
+      l("risposta", "rhodes", 0, 0.17, 0.4), l("onde", "swell", 0, 0.105, 0.4) },
+    tex = { city = 0.105, wind = 0.105 }, fx = { rev = 0.7, size = 0.9, shimmer = 0.35, echo = 0.3, etime = 0.4 } } },
 
 -------------------------------------------------------------------------------
 -- +1 · L'INFANZIA
@@ -270,10 +270,10 @@ return {
     T("Non rispondi, ma va bene così. Torno presto.", "You don't answer, but that's all right. I'll be back soon.") },
   macro = { "pioggia", "coro", "lacrime" }, macro_def = { 0.6, 0.3, 0.3 },
   musica = { tonica = 46, modo = "eolio", bpm = 48, prog = { 1, 4, 6, 5 }, accordo = "add9", battute = 4, glide = 16, tema = 0.4,
-    drone = { amp = 0.34, cut = 800, shape = 0.15, sub = 0.3, breath = 0.45 },
-    linee = { l("accordo", "organ", 0, 0.1, 0.6, { atk = 2.5 }), l("melodia", "piano", 0, 0.28, 0.7, { legato = 2.6, bright = 0.22 }),
-      l("risposta", "choir", 0, 0.1, 0.3, { atk = 2 }) },
-    tex = { rain = 0.45, storm = 0.15, wind = 0.15 }, fx = { rev = 0.85, size = 0.95, tape = 0.1 } } },
+    drone = { amp = 0.241, cut = 800, shape = 0.15, sub = 0.3, breath = 0.45 },
+    linee = { l("accordo", "organ", 0, 0.071, 0.6, { atk = 2.5 }), l("melodia", "piano", 0, 0.198, 0.7, { legato = 2.6, bright = 0.22 }),
+      l("risposta", "choir", 0, 0.071, 0.3, { atk = 2 }) },
+    tex = { rain = 0.319, storm = 0.106, wind = 0.106 }, fx = { rev = 0.85, size = 0.95, tape = 0.1 } } },
 
 { id = "citta_abbandonata", strato = 0, x = 0.88, terreno = "pietra", nome = T("La città abbandonata", "The abandoned town"),
   ora = T("Le strade vuote, le serrande abbassate, l'erba che spacca l'asfalto. Un semaforo cambia colore per nessuno.",
@@ -295,10 +295,10 @@ return {
   altro = { T("Un riflettore si accende da solo, su nessuno. Silenzio, si gira.", "A spotlight comes on by itself, on nobody. Quiet, rolling.") },
   macro = { "eco", "ricordo", "luce" }, macro_def = { 0.4, 0.5, 0.4 },
   musica = { tonica = 50, modo = "eolio", bpm = 58, prog = { 1, 6, 7, 1 }, accordo = "settima", battute = 4, glide = 12, tema = 0.3,
-    drone = { amp = 0.3, cut = 900, shape = 0.2, sub = 0.25, breath = 0.35 },
-    linee = { l("melodia", "piano", 0, 0.26, 0.6, { legato = 2.2, bright = 0.3 }), l("accordo", "strings", 0, 0.12, 0.5, { atk = 3 }),
-      l("arpeggio", "musicbox", 1, 0.1, 0.4) },
-    tex = { hum = 0.1, wind = 0.1, crackle = 0.06 }, fx = { rev = 0.82, size = 0.95, tape = 0.25, age = 0.2 } } },
+    drone = { amp = 0.201, cut = 900, shape = 0.2, sub = 0.25, breath = 0.35 },
+    linee = { l("melodia", "piano", 0, 0.174, 0.6, { legato = 2.2, bright = 0.3 }), l("accordo", "strings", 0, 0.08, 0.5, { atk = 3 }),
+      l("arpeggio", "musicbox", 1, 0.067, 0.4) },
+    tex = { hum = 0.067, wind = 0.067, crackle = 0.04 }, fx = { rev = 0.82, size = 0.95, tape = 0.25, age = 0.2 } } },
 
 { id = "set_film", strato = 0, x = 0.97, terreno = "sabbia", nome = T("Il set abbandonato", "The abandoned set"),
   ora = T("Una strada del vecchio West fatta di facciate: dietro le porte del saloon non c'è niente, solo travi e sacchi di sabbia.",
@@ -610,9 +610,9 @@ return {
   altro = { T("Una piccola luce scende piano, verso di loro.", "A small light sinks slowly, towards them.") },
   macro = { "profondita", "coro", "lacrime" }, macro_def = { 0.5, 0.3, 0.3 },
   musica = { tonica = 41, modo = "eolio", bpm = 40, prog = { 1, 6, 7, 1 }, accordo = "aperto", battute = 8, glide = 20, tema = 0.3,
-    drone = { amp = 0.4, cut = 500, shape = 0.12, sub = 0.4, breath = 0.5 },
-    linee = { l("accordo", "choir", 0, 0.12, 0.6, { atk = 4 }), l("melodia", "bowed", 0, 0.18, 0.4, { legato = 3, atk = 0.8 }), l("onde", "swell", 0, 0.1, 0.5) },
-    tex = { bubble = 0.25, rumble = 0.2 }, fx = { rev = 0.94, size = 0.98, dark = 0.65, shimmer = 0.15 } } },
+    drone = { amp = 0.255, cut = 500, shape = 0.12, sub = 0.4, breath = 0.5 },
+    linee = { l("accordo", "choir", 0, 0.077, 0.6, { atk = 4 }), l("melodia", "bowed", 0, 0.115, 0.4, { legato = 3, atk = 0.8 }), l("onde", "swell", 0, 0.064, 0.5) },
+    tex = { bubble = 0.16, rumble = 0.128 }, fx = { rev = 0.94, size = 0.98, dark = 0.65, shimmer = 0.15 } } },
 
 { id = "bosco_profondo", strato = -3, x = 0.75, terreno = "foglie", nome = T("Il bosco profondo", "The deep wood"),
   ora = T("I tronchi sono tutti uguali. Il sentiero è finito da un pezzo e non sai quando. Qualcosa cammina con te, sempre un passo indietro.",
@@ -632,10 +632,10 @@ return {
   altro = { T("Respira. Ancora. Ancora una volta.", "Breathe. Again. One more time.") },
   macro = { "fuoco", "respiro", "archi" }, macro_def = { 0.5, 0.4, 0.3 },
   musica = { tonica = 43, modo = "frigio", bpm = 44, prog = { 1, 2, 7, 1 }, accordo = "add9", battute = 4, glide = 16, tema = 0.3,
-    drone = { amp = 0.4, cut = 700, shape = 0.3, sub = 0.4, breath = 0.45 },
-    linee = { l("accordo", "strings", 0, 0.18, 0.7, { atk = 3 }), l("melodia", "bowed", 0, 0.22, 0.5, { legato = 2.8, atk = 0.5 }),
-      l("basso", "sub", -1, 0.16, 0.5, { legato = 1 }) },
-    tex = { fire = 0.45, heart = 0.12 }, fx = { rev = 0.7, size = 0.9, tape = 0.15, dark = 0.2 }, speciale = { hrate = 0.9 } } },
+    drone = { amp = 0.286, cut = 700, shape = 0.3, sub = 0.4, breath = 0.45 },
+    linee = { l("accordo", "strings", 0, 0.129, 0.7, { atk = 3 }), l("melodia", "bowed", 0, 0.158, 0.5, { legato = 2.8, atk = 0.5 }),
+      l("basso", "sub", -1, 0.115, 0.5, { legato = 1 }) },
+    tex = { fire = 0.322, heart = 0.086 }, fx = { rev = 0.7, size = 0.9, tape = 0.15, dark = 0.2 }, speciale = { hrate = 0.9 } } },
 
 }
 end

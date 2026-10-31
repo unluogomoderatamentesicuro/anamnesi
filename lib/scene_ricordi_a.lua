@@ -51,7 +51,7 @@ S.felicita = {
   draw = function(s, t)
     local lu = mac("luce")
     D.gradient(0, 40, 8 + lu * 3, 12 + lu * 2)
-    D.circle(24, 12, 6, 15); D.circle(24, 12, 8, 13 + lu)
+    D.circle(24, 12, 8, 13 + lu); D.circle(24, 12, 6, 15)
     K.clouds(s.clouds, t, 14)
     -- colline e il campanile lontano
     D.rect(0, 38, 128, 26, 7)

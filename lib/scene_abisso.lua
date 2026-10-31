@@ -148,7 +148,7 @@ S.incubo = {
     s.fig:draw()
     local cy = K.crib(88, 58, 5)
     D.circle(98, cy - 2, 2, 8)
-    if s.flash > 0 then D.rect(0, 0, 128, 64, s.flash * 3); s.fig:draw() end
+    if s.flash > 0 then D.flash(s.flash * 6); s.fig:draw() end
   end,
 }
 

@@ -130,6 +130,19 @@ C.MACRO = {
   end },
   treno = { { "treno", "train" }, fn = function(P, v) add(P.t, "train", v * 0.7) end },
   foglie = { { "foglie", "leaves" }, fn = function(P, v) add(P.t, "leaves", v * 0.7); add(P.t, "wind", v * 0.2); P.v.wind = v end },
+  tormento = { { "tormento", "torment" }, fn = function(P, v)
+    -- il dolore che si sente: rumore, fischio, stridore, accordi che battono
+    add(P.t, "noise", v * 0.9); add(P.t, "static", v * 0.6); add(P.t, "tinnitus", max(0, v - 0.3) * 0.9)
+    add(P.t, "shriek", max(0, v - 0.5) * 0.9); P.k.torment = (P.k.torment or 0) + v
+    add(P.f, "crush", v * 0.15); add(P.d, "detune", v * 0.7); add(P.d, "wob", v * 0.4); mul(P.d, "cut", 1 - v * 0.3)
+    P.k.dens = P.k.dens * (1 - v * 0.25); P.v.shake = (P.v.shake or 0) + v * 0.6
+  end },
+  vetro = { { "vetro", "glass" }, fn = function(P, v)
+    P.k.glass = (P.k.glass or 0) + v; add(P.f, "shimmer", v * 0.3); add(P.f, "rev", v * 0.1)
+  end },
+  macchine = { { "macchine", "machines" }, fn = function(P, v)
+    add(P.t, "machine", v * 0.9); add(P.d, "shape", v * 0.2); P.k.pulse = P.k.pulse + v * 0.5
+  end },
   ricordo = { { "ricordo", "memory" }, fn = function(P, v) P.k.tema = P.k.tema + v * 0.5; add(P.f, "echo", v * 0.3); add(P.f, "age", v * 0.15) end },
 }
 
@@ -633,11 +646,19 @@ function C.tick()
 
   -- le voci evocate dalle macro
   C.glow = max(0, (C.glow or 0) - 0.006)
+  local st = C.place and C.place.strato or 0
+  if st <= -2 and not C.travelling then
+    local base = (st == -2) and 0.08 or 0.16
+    k.torment = (k.torment or 0) + base + max(0, (life - 0.85)) * 2.5 * (st == -3 and 1 or 0.6)
+  end
   local swell = C.travelling and 0 or clamp((life - 0.8) * 3.5, 0, 0.75)
   for _, l in ipairs(C.lines) do
     if l.extra then
       local v = k[l.extra] or 0
-      if l.extra == "strings" then v = max(v, swell, (C.glow or 0) * 0.45, C.bridge or 0) end
+      if l.extra == "strings" then
+        local sw = (C.place and C.place.strato or 0) <= -2 and swell * 0.4 or swell
+        v = max(v, sw, (C.glow or 0) * 0.45, C.bridge or 0)
+      end
       if l.extra == "choir" then v = max(v, clamp((life - 0.9) * 4, 0, 0.35)) end
       l.on = v > 0.05
       l.gain = clamp(v, 0, 1.5)
@@ -673,7 +694,8 @@ end
 -------------------------------------------------------------------------------
 local TEXN = { "rain", "wind", "sea", "fire", "crick", "cicada", "birds", "hum", "clock", "heart", "drip",
   "voices", "crowd", "rumble", "crackle", "stream", "bubble", "train", "city", "copier", "leaves", "frogs",
-  "owl", "storm", "swallows", "cowbells", "typewriter", "breath", "radio", "arcade" }
+  "owl", "storm", "swallows", "cowbells", "typewriter", "breath", "radio", "arcade",
+  "noise", "tinnitus", "static", "machine", "shriek" }
 C.TEXN = TEXN
 
 function C.macro_def(i)
@@ -717,6 +739,14 @@ function C.update(dt)
       C.mac[id] = v
       if id == "luce" then P.k.bright = v * 0.3 end
     end
+  end
+  -- negli strati più bassi il dolore c'è sempre, sotto, e al culmine sale
+  local stv = C.place and C.place.strato or 0
+  if stv <= -2 and not C.travelling then
+    local peak = max(0, (C.life or 0.6) - 0.85) * 4
+    local base = (stv == -2) and 0.05 or 0.1
+    add(P.t, "noise", base + peak * 0.35); add(P.t, "static", peak * 0.25)
+    if stv == -3 then add(P.t, "tinnitus", peak * 0.4) end
   end
   -- ora / allora
   local a = C.ac
@@ -780,6 +810,10 @@ local EXTRA = {
   { extra = "whisper", ruolo = "sussurri", str = "whisper", ott = 1, amp = 0.32, prob = 0.8 },
   { extra = "glitch", ruolo = "schegge", str = "glitch", ott = 1, amp = 0.2, prob = 0.8 },
   { extra = "pulse", ruolo = "pulsazione", str = "sub", ott = -1, amp = 0.3, prob = 0.3, legato = 0.6 },
+  { extra = "torment", ruolo = "accordo", str = "cluster", ott = 0, amp = 0.3, prob = 0.8, atk = 1.5, voci = 2 },
+  { extra = "torment", ruolo = "schegge", str = "scrape", ott = 0, amp = 0.28, prob = 0.7, bright = 0.6 },
+  { extra = "glass", ruolo = "scintille", str = "fm", ott = 1, amp = 0.2, prob = 0.8, bright = 0.4 },
+  { extra = "glass", ruolo = "onde", str = "grain", ott = 1, amp = 0.24, prob = 0.6, legato = 2 },
 }
 
 local function build_lines(p)

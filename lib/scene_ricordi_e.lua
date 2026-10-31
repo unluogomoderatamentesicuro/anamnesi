@@ -402,7 +402,7 @@ S.temporale = {
     if s.flash > 0 then
       local x = s.fx
       D.line(x, 4, x - 4, 16, 15 * s.flash); D.line(x - 4, 16, x + 2, 26, 15 * s.flash); D.line(x + 2, 26, x - 2, 40, 15 * s.flash)
-      D.rect(s.front, 0, 128 - s.front, 46, s.flash * 6)
+      D.flash(s.flash * 6, s.front, 0, 128 - s.front, 46)
     end
     -- la valle, i campi
     D.rect(0, 36, 128, 28, 6)

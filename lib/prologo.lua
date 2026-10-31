@@ -42,7 +42,7 @@ function Pr.init(lang, step)
   Pr.fig2 = D.figura(18, 60, { s = 0.75, l = 9, speed = 5, on_step = st })
   Pr.fig2:act({ { "walk", 52, 5, 50 }, { "walk", 70, 4, 44 }, { "pose", "stand", 9 } })
   -- davanti alla porta
-  Pr.fig3 = D.figura(64, 70, { s = 2.6, l = 1, dark = true, pose = "stand" })
+  Pr.fig3 = D.figura(64, 70, { s = 2.6, l = 1, dark = true, sil = true, pose = "stand" })
   Pr.fig3:act({ { "wait", 3.2 }, { "pose", "look_up", 2 }, { "pose", "arms_open", 9 } })
   Pr.door = 0
 end
@@ -209,14 +209,15 @@ function Pr.draw()
     D.rect(44 + 40 * open, 10, 40 * (1 - open), 54, 4)
     if open < 0.95 then D.rect(44 + 40 * open + 33 * (1 - open), 36, 2, 2, 10) end
     D.poly({ 44, 63, 84, 63, 84 + 30 * open, 64, 44 - 30 * open, 64 }, 10 * open)
+    Pr.fig3.sil = Pr.door > 0.15
     Pr.fig3:draw()
-    if t > SH[5][2] - 2.5 then D.rect(0, 0, 128, 64, (t - (SH[5][2] - 2.5)) / 2.5 * 15) end
+    if t > SH[5][2] - 2.5 then D.flash((t - (SH[5][2] - 2.5)) / 2.5 * 15) end
     bars()
     D.gain = 1
   else
     -- il bianco che si spegne piano: e sei sulla soglia
     local k = (t - SH[6][1]) / (SH[6][2] - SH[6][1])
-    D.rect(0, 0, 128, 64, 15 * (1 - k) ^ 1.5)
+    D.flash(15 * (1 - k) ^ 1.5)
   end
 end
 

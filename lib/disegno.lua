@@ -17,22 +17,34 @@ D.veil = 0      -- velo del ricordo (allora)
 -------------------------------------------------------------------------------
 -- base
 -------------------------------------------------------------------------------
-function D.lv(l)
+-- LA LUCE (v6): lo schermo del norns è nero, e un OLED fa sembrare chiaro
+-- anche un grigio medio. Allora: le grandi superfici (muri, cieli, pavimenti,
+-- colline) scendono quasi al nero; gli oggetti piccoli restano leggibili;
+-- le figure e le luci vere restano luminose. Così si vede chi si muove.
+function D.lv(l, big)
   local v = D.veil
   if v > 0 then l = l * (1 - 0.25 * v) end
   l = l * D.gain
   if l <= 0 then return 0 end
-  -- la curva: i neri restano neri, le luci vere restano luci,
-  -- ma i grandi grigi chiari (cieli, muri, nebbie) si abbassano,
-  -- così non fanno quella patina lattiginosa che copre le figure
-  l = 15 * (l / 15) ^ 1.15
-  if l > 5 then
-    if l <= 13 then l = 5 + (l - 5) * 0.68
-    else l = 10.44 + (l - 13) * 2.28 end
+  local f
+  if D.bright then
+    f = l
+  else
+    f = 15 * (l / 15) ^ 1.55
+    if f < 1 and l >= 1.2 then f = 1 end
+    -- quanto è grande la superficie: true = enorme, un numero = i pixel riempiti.
+    -- Sopra i 30 pixel si comincia a scendere verso il nero, sopra i 330 si è giù del tutto.
+    local k = 0
+    if big == true then k = 1 elseif big then k = (big - 30) / 300 end
+    if k > 0 then
+      if k > 1 then k = 1 end
+      local b = 15 * ((l * 0.42) / 15) ^ 2.0
+      f = f + (b - f) * k
+    end
   end
-  l = floor(l + 0.5)
-  if l > 15 then l = 15 end
-  return l
+  f = floor(f + 0.5)
+  if f > 15 then f = 15 end
+  return f
 end
 local lv = D.lv
 
@@ -65,7 +77,12 @@ local noise = D.noise
 
 function D.rect(x, y, w, h, l)
   if w <= 0 or h <= 0 then return end
-  screen.level(lv(l)); screen.rect(floor(x), floor(y), floor(w), floor(h)); screen.fill()
+  screen.level(lv(l, w * h)); screen.rect(floor(x), floor(y), floor(w), floor(h)); screen.fill()
+end
+
+-- un lampo o un bianco pieno: qui la luce deve arrivare tutta
+function D.flash(l, x, y, w, h)
+  screen.level(lv(l)); screen.rect(x or 0, y or 0, w or 128, h or 64); screen.fill()
 end
 
 function D.px(x, y, l)
@@ -99,7 +116,13 @@ function D.thick(x1, y1, x2, y2, w, l)
 end
 
 function D.poly(pts, l)
-  screen.level(lv(l))
+  local x0, x1, y0, y1 = 999, -999, 999, -999
+  for i = 1, #pts, 2 do
+    local x, y = pts[i], pts[i + 1]
+    if x < x0 then x0 = x end; if x > x1 then x1 = x end
+    if y < y0 then y0 = y end; if y > y1 then y1 = y end
+  end
+  screen.level(lv(l, (x1 - x0) * (y1 - y0) * 0.55))
   screen.move(pts[1], pts[2])
   for i = 3, #pts, 2 do screen.line(pts[i], pts[i + 1]) end
   screen.close()
@@ -117,7 +140,7 @@ end
 D.tr = function(s) return s end
 
 function D.circle(x, y, r, l, stroke)
-  screen.level(lv(l))
+  screen.level(lv(l, (not stroke) and r * r * 3.14))
   screen.circle(x, y, r)
   if stroke then screen.stroke() else screen.fill() end
 end
@@ -128,7 +151,7 @@ function D.gradient(y0, y1, l0, l1)
   if h <= 0 then return end
   local last, start = nil, y0
   for y = y0, y1 do
-    local l = lv(l0 + (l1 - l0) * ((y - y0) / h))
+    local l = lv(l0 + (l1 - l0) * ((y - y0) / h), true)
     if l ~= last then
       if last then screen.level(last); screen.rect(0, start, 128, y - start); screen.fill() end
       last, start = l, y
@@ -170,7 +193,7 @@ end
 -- crinale pieno (può scorrere orizzontalmente: off)
 function D.ridge(h, l, ybot, off)
   off = off or 0
-  screen.level(lv(l))
+  screen.level(lv(l, true))
   screen.move(0, ybot or 64)
   for x = 0, 128 do
     local xi = floor(x + off) % 129
@@ -239,7 +262,7 @@ end
 
 function D.cloud(x, y, w, l, seed)
   local r = D.lcg(seed or floor(w * 7))
-  screen.level(lv(l))
+  screen.level(lv(l, w > 16))
   for i = 1, floor(w / 4) + 2 do
     local cx = x + r() * w
     local cy = y + (r() - 0.6) * w * 0.12
@@ -619,7 +642,7 @@ function D.figura(x, y, o)
     q = {}, cur = {}, tgt = POSE[o.pose or "stand"], walking = false, ph = 0, t = random() * 10,
     coat = o.coat ~= false, dress = o.dress, child = o.child, bun = o.bun,
     bent = o.bent or 0, shake = 0, speed = o.speed or 7, flap = 0, idle = true,
-    hand = { x, y }, prop = o.prop, on_step = o.on_step, dark = o.dark,
+    hand = { x, y }, prop = o.prop, on_step = o.on_step, dark = o.dark, sil = o.sil,
   }, Fig)
   for _, k in ipairs(KEYS) do f.cur[k] = f.tgt[k] end
   return f
@@ -709,6 +732,11 @@ end
 function Fig:draw()
   local c, s, fc = self.cur, self.s, self.face
   local l = self.l
+  -- sullo schermo nero le sagome scure diventano figure di luce,
+  -- a meno che la scena non voglia proprio una sagoma controluce (sil)
+  local dark = self.dark
+  if dark and not self.sil then dark = false; l = max(l, 11) end
+  D.bright = true
   local br = sin(self.t * 1.4) * 1.3
   local sh = self.shake > 0 and sin(self.t * 23) * self.shake * 3 or 0
   local hx, hy = self.x, self.y - c.hy * s
@@ -750,11 +778,11 @@ function Fig:draw()
     seg(sx, sy, sx + ex, sy + ey, lvl, aw * 1.1)
     seg(sx + ex, sy + ey, sx + ex + wx, sy + ey + wy, lvl, aw)
     local hx2, hy2 = P(sx + ex + wx, sy + ey + wy)
-    if s >= 1.2 then D.circle(hx2, hy2, 0.55 * s, lvl + (self.dark and -1 or 1)) end
+    if s >= 1.2 then D.circle(hx2, hy2, 0.55 * s, lvl + (dark and -1 or 1)) end
     if i == 1 then self.hand = { hx2, hy2 } end
   end
 
-  local far = l - (self.dark and -2 or 4)
+  local far = l - (dark and -2 or 4)
   leg(2, far)
   arm(2, far)
   -- busto / cappotto
@@ -780,10 +808,11 @@ function Fig:draw()
     D.circle(hxw - fc * headr * 0.9, hyw - headr * 0.3, headr * 0.55, l - 2)
   elseif not self.child and self.hair ~= false and s >= 0.9 then
     -- i capelli: una calotta più scura sulla nuca
-    local hl = self.dark and l + 1 or l - 3
+    local hl = dark and l + 1 or l - 3
     D.circle(hxw - fc * headr * 0.3, hyw - headr * 0.35, headr * 0.78, hl)
     D.circle(hxw + fc * headr * 0.25, hyw + headr * 0.15, headr * 0.72, l)
   end
+  D.bright = false
   if self.prop then self.prop(self.hand[1], self.hand[2], self) end
 end
 
